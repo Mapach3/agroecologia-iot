@@ -17,4 +17,7 @@ public interface ApplicationUserRepository extends JpaRepository<ApplicationUser
     @Query("SELECT u FROM ApplicationUser u JOIN FETCH u.role where u.userId = (:id)")
     Optional<ApplicationUser> findByIdAndFetchRoleEagerly(@Param("id") long id);
 
+    @Query("SELECT u FROM ApplicationUser u JOIN FETCH u.role where u.username = (:username)")
+    Optional<ApplicationUser> findByUsernameAndFetchRoleEagerly(@Param("username") String username);
+
 }

@@ -39,7 +39,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     public AuthenticationFilter getAuthenticationFilter() throws Exception {
-        final AuthenticationFilter authFilter = new AuthenticationFilter(authenticationManager());
+        final AuthenticationFilter authFilter = new AuthenticationFilter(authenticationManager(), userDetailsService);
         authFilter.setFilterProcessesUrl(SecurityConstants.LOGIN_URL);
         return authFilter;
     }

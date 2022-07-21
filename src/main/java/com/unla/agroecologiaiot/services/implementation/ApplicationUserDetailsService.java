@@ -59,7 +59,7 @@ public class ApplicationUserDetailsService implements UserDetailsService, IAppli
 
     public ProfileDTO getProfile(String username) {
 
-        Optional<ApplicationUser> dbUser = applicationUserRepository.findByUsername(username);
+        Optional<ApplicationUser> dbUser = applicationUserRepository.findByUsernameAndFetchRoleEagerly(username);
 
         if (dbUser.isPresent()) {
             return modelMapper.map(dbUser.get(), ProfileDTO.class);
@@ -78,7 +78,8 @@ public class ApplicationUserDetailsService implements UserDetailsService, IAppli
             throw new UsernameNotFoundException("Username not found");
         }
 
-        return new User(applicationUser.get().getUsername(), applicationUser.get().getPassword(), emptyList());
+        return new User(applicationUser.get().getUsername(), applicationUser.get().getPassword(),
+                applicationUser.get().isEnabled(), true, true, true, emptyList());
     }
 
 }

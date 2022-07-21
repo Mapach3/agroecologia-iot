@@ -10,17 +10,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.hibernate.annotations.Filter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.unla.agroecologiaiot.constants.Constants;
 import com.unla.agroecologiaiot.constants.SecurityConstants;
 import com.unla.agroecologiaiot.models.auth.LoginDTO;
 import com.unla.agroecologiaiot.models.auth.LoginResponse;
@@ -37,13 +35,13 @@ import org.springframework.security.core.userdetails.User;
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
-
-    @Autowired
-    @Qualifier("applicationUserDetailsService")
     private IApplicationUserService applicationUserDetailsService;
+    private Gson gson = new Gson();
 
-    public AuthenticationFilter(AuthenticationManager authenticationManager) {
+    public AuthenticationFilter(AuthenticationManager authenticationManager,
+            IApplicationUserService applicationUserDetailsService) {
         this.authenticationManager = authenticationManager;
+        this.applicationUserDetailsService = applicationUserDetailsService;
     }
 
     @Override
@@ -67,12 +65,16 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         Date exp = new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME);
         Key key = Keys.hmacShaKeyFor(SecurityConstants.SECRET.getBytes());
 
+        // Get profile to store in Web App
         ProfileDTO profile = applicationUserDetailsService.getProfile(((User) auth.getPrincipal()).getUsername());
 
+        // TODO: Create a custom Claim with user Information, so we use it later to set
+        // the SecurityContextHolder.
         Claims claims = Jwts
                 .claims()
-                .setSubject(((User) auth.getPrincipal()).getUsername());
+                .setSubject(this.gson.toJson(profile));
 
+        // Build JWT Token
         String token = Jwts.builder()
                 .setClaims(claims)
                 .signWith(key, SignatureAlgorithm.HS512)
@@ -80,8 +82,12 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                 .compact();
 
         LoginResponse response = new LoginResponse(token, profile);
+        String jsonResponse = this.gson.toJson(response);
 
-        res.getWriter().write(response.toString());
+        // Set custom response
+        res.setStatus(HttpServletResponse.SC_OK);
+        res.setContentType(Constants.ContentTypes.APPLICATION_JSON);
+        res.getWriter().print(jsonResponse);
         res.getWriter().flush();
     }
 
@@ -90,7 +96,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             AuthenticationException e) throws IOException, ServletException {
 
         res.getWriter().write("Credenciales inválidas");
-        res.setStatus(400);
+        res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         res.getWriter().flush();
 
     }

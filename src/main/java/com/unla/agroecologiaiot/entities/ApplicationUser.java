@@ -32,6 +32,8 @@ public class ApplicationUser {
     private String surname;
     private String email;
 
+    private boolean enabled;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "roleId", nullable = false, foreignKey = @ForeignKey(name = "FK_Role_User"))
     private Role role;
