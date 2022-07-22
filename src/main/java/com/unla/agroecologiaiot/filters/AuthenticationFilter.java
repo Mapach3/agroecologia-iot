@@ -95,6 +95,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     protected void unsuccessfulAuthentication(HttpServletRequest req, HttpServletResponse res,
             AuthenticationException e) throws IOException, ServletException {
 
+        res.setContentType(Constants.ContentTypes.APPLICATION_JSON);
         res.getWriter().write("Credenciales inválidas");
         res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         res.getWriter().flush();

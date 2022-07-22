@@ -7,6 +7,11 @@ public class SecurityConstants {
     public static final String HEADER_NAME = "Authorization";
     public static final Long EXPIRATION_TIME = 1000L * 60 * 30; // 30 Minutes
 
-    public static final String LOGIN_URL = "/api/v1/login";
+    public static final String LOGIN_URL = "/api/v1/auth/login";
+
+    public static final String[] SWAGGER_URL_WHITELIST = {
+            "/v3/api-docs/**",
+            "/swagger-ui/**"
+    };
 
 }
