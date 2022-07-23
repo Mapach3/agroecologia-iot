@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.unla.agroecologiaiot.models.ApplicationUserModel;
 import com.unla.agroecologiaiot.services.implementation.ApplicationUserDetailsService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+
 @RestController
 @RequestMapping("api/v1/users")
 public class UserController {
@@ -27,6 +29,8 @@ public class UserController {
     private ApplicationUserDetailsService applicationUserDetailsService;
 
     @PostMapping("")
+    @SecurityRequirements // disables Security Schemes from Configuration. @SecurityRequirement to
+                          // override global config?
     public ResponseEntity<Long> signUp(@RequestBody ApplicationUserModel model) {
         long response = applicationUserDetailsService.saveOrUpdate(model);
         return new ResponseEntity<Long>(response, HttpStatus.CREATED);

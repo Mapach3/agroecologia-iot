@@ -19,7 +19,4 @@ public class ApplicationUserModel {
     private String email;
 
     private long roleId;
-
-    private RoleModel role;
-
 }
