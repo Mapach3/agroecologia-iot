@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.unla.agroecologiaiot.models.ApplicationUserModel;
-import com.unla.agroecologiaiot.services.implementation.ApplicationUserDetailsService;
+import com.unla.agroecologiaiot.services.IApplicationUserService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 
@@ -25,14 +25,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 public class UserController {
 
     @Autowired
-    @Qualifier("applicationUserDetailsService")
-    private ApplicationUserDetailsService applicationUserDetailsService;
+    @Qualifier("applicationUserService")
+    private IApplicationUserService applicationUserService;
 
     @PostMapping("")
     @SecurityRequirements // disables Security Schemes from Configuration. @SecurityRequirement to
                           // override global config?
     public ResponseEntity<Long> signUp(@RequestBody ApplicationUserModel model) {
-        long response = applicationUserDetailsService.saveOrUpdate(model);
+        long response = applicationUserService.saveOrUpdate(model);
         return new ResponseEntity<Long>(response, HttpStatus.CREATED);
     }
 
@@ -40,7 +40,7 @@ public class UserController {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public ResponseEntity get(@PathVariable long id) {
 
-        ApplicationUserModel userModel = applicationUserDetailsService.getUser(id);
+        ApplicationUserModel userModel = applicationUserService.getUser(id);
 
         if (userModel != null) {
             return new ResponseEntity(userModel, HttpStatus.OK);

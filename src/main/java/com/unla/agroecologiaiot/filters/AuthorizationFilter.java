@@ -29,7 +29,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
             HttpServletResponse response,
             FilterChain chain) throws IOException, ServletException {
 
-        String header = request.getHeader(SecurityConstants.HEADER_NAME);
+        String header = request.getHeader(SecurityConstants.AUTHORIZATION_HEADER_NAME);
 
         if (header == null) {
             chain.doFilter(request, response);
