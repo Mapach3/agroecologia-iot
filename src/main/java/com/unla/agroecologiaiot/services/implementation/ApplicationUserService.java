@@ -15,15 +15,14 @@ import org.springframework.stereotype.Service;
 import com.unla.agroecologiaiot.entities.ApplicationUser;
 import com.unla.agroecologiaiot.entities.Role;
 import com.unla.agroecologiaiot.models.ApplicationUserModel;
-import com.unla.agroecologiaiot.models.auth.ProfileDTO;
 import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
 import com.unla.agroecologiaiot.repositories.RoleRepository;
 import com.unla.agroecologiaiot.services.IApplicationUserService;
 
 import static java.util.Collections.emptyList;
 
-@Service("applicationUserDetailsService")
-public class ApplicationUserDetailsService implements UserDetailsService, IApplicationUserService {
+@Service("applicationUserService")
+public class ApplicationUserService implements IApplicationUserService, UserDetailsService {
 
     private ModelMapper modelMapper = new ModelMapper();
     private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
@@ -57,12 +56,12 @@ public class ApplicationUserDetailsService implements UserDetailsService, IAppli
         return null;
     }
 
-    public ProfileDTO getProfile(String username) {
+    public ApplicationUserModel getUser(String username) {
 
         Optional<ApplicationUser> dbUser = applicationUserRepository.findByUsernameAndFetchRoleEagerly(username);
 
         if (dbUser.isPresent()) {
-            return modelMapper.map(dbUser.get(), ProfileDTO.class);
+            return modelMapper.map(dbUser.get(), ApplicationUserModel.class);
         }
         return null;
 

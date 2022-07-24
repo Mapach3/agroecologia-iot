@@ -1,5 +1,6 @@
 package com.unla.agroecologiaiot.configuration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -10,21 +11,25 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.unla.agroecologiaiot.filters.AuthenticationFilter;
 import com.unla.agroecologiaiot.filters.AuthorizationFilter;
+import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
+import com.unla.agroecologiaiot.services.implementation.ApplicationUserService;
 
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.unla.agroecologiaiot.constants.SecurityConstants;
-import com.unla.agroecologiaiot.services.implementation.ApplicationUserDetailsService;
 
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private ApplicationUserDetailsService userDetailsService;
+    private ApplicationUserService userService;
 
-    public SecurityConfiguration(ApplicationUserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
+    @Autowired
+    private ApplicationUserRepository applicationUserRepository;
+
+    public SecurityConfiguration(ApplicationUserService userService) {
+        this.userService = userService;
     }
 
     @Override
@@ -40,7 +45,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     public AuthenticationFilter getAuthenticationFilter() throws Exception {
-        final AuthenticationFilter authFilter = new AuthenticationFilter(authenticationManager(), userDetailsService);
+        final AuthenticationFilter authFilter = new AuthenticationFilter(authenticationManager(),
+                applicationUserRepository);
         authFilter.setFilterProcessesUrl(SecurityConstants.LOGIN_URL);
         return authFilter;
     }
@@ -54,7 +60,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(new BCryptPasswordEncoder());
+        auth.userDetailsService(userService).passwordEncoder(new BCryptPasswordEncoder());
     }
 
 }

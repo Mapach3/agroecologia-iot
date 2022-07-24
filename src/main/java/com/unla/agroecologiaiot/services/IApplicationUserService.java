@@ -1,7 +1,6 @@
 package com.unla.agroecologiaiot.services;
 
 import com.unla.agroecologiaiot.models.ApplicationUserModel;
-import com.unla.agroecologiaiot.models.auth.ProfileDTO;
 
 public interface IApplicationUserService {
 
@@ -9,6 +8,6 @@ public interface IApplicationUserService {
 
     public ApplicationUserModel getUser(long id);
 
-    public ProfileDTO getProfile(String username);
+    public ApplicationUserModel getUser(String username);
 
 }
