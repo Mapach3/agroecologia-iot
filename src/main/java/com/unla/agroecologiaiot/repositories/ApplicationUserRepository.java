@@ -12,12 +12,12 @@ import com.unla.agroecologiaiot.entities.ApplicationUser;
 @Repository("applicationUserRepository")
 public interface ApplicationUserRepository extends JpaRepository<ApplicationUser, Long> {
 
-    Optional<ApplicationUser> findByUsername(String username);
+    public abstract Optional<ApplicationUser> findByUsername(String username);
 
     @Query("SELECT u FROM ApplicationUser u JOIN FETCH u.role where u.userId = (:id)")
-    Optional<ApplicationUser> findByIdAndFetchRoleEagerly(@Param("id") long id);
+    public abstract Optional<ApplicationUser> findByIdAndFetchRoleEagerly(@Param("id") long id);
 
     @Query("SELECT u FROM ApplicationUser u JOIN FETCH u.role where u.username = (:username)")
-    Optional<ApplicationUser> findByUsernameAndFetchRoleEagerly(@Param("username") String username);
+    public abstract Optional<ApplicationUser> findByUsernameAndFetchRoleEagerly(@Param("username") String username);
 
 }

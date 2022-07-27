@@ -1,7 +1,9 @@
 package com.unla.agroecologiaiot.filters;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -13,15 +15,23 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import com.google.gson.Gson;
+import com.unla.agroecologiaiot.constants.Constants;
 import com.unla.agroecologiaiot.constants.SecurityConstants;
+import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
 public class AuthorizationFilter extends BasicAuthenticationFilter {
 
-    public AuthorizationFilter(AuthenticationManager authenticationManager) {
+    private ApplicationUserRepository applicationUserRepository;
+    private Gson gson = new Gson();
+
+    public AuthorizationFilter(AuthenticationManager authenticationManager,
+            ApplicationUserRepository applicationUserRepository) {
         super(authenticationManager);
+        this.applicationUserRepository = applicationUserRepository;
     }
 
     @Override
@@ -36,10 +46,20 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
             return;
         }
 
-        UsernamePasswordAuthenticationToken authentication = authenticate(request);
+        try {
+            UsernamePasswordAuthenticationToken authentication = authenticate(request);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            chain.doFilter(request, response);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        chain.doFilter(request, response);
+        } catch (Exception ex) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType(Constants.ContentTypes.APPLICATION_JSON);
+            response.getWriter().print(this.gson.toJson(ex.getMessage()));
+            response.getWriter().flush();
+
+            return;
+        }
+
     }
 
     private UsernamePasswordAuthenticationToken authenticate(HttpServletRequest request) {
@@ -65,7 +85,9 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
                 .getBody();
 
         if (user != null) {
-            return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+            var idFromToken = Long.parseLong(user.getSubject());
+            var validatedUser = applicationUserRepository.findByIdAndFetchRoleEagerly(idFromToken);
+            return new UsernamePasswordAuthenticationToken(user, null, validatedUser.get().getAuthorities());
         } else {
             return null;
         }

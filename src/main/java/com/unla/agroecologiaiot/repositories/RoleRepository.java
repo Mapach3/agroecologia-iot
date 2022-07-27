@@ -8,6 +8,6 @@ import com.unla.agroecologiaiot.entities.Role;
 @Repository("roleRepository")
 public interface RoleRepository extends JpaRepository<Role, Long> {
 
-    public Role findByName(String name);
+    public abstract Role findByName(String name);
 
 }

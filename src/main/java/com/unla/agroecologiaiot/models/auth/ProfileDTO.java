@@ -1,7 +1,5 @@
 package com.unla.agroecologiaiot.models.auth;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
