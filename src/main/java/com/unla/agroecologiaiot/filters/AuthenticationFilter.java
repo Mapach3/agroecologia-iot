@@ -2,11 +2,12 @@ package com.unla.agroecologiaiot.filters;
 
 import java.io.IOException;
 import java.security.Key;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -24,10 +25,12 @@ import com.google.gson.Gson;
 import com.unla.agroecologiaiot.constants.Constants;
 import com.unla.agroecologiaiot.constants.SecurityConstants;
 import com.unla.agroecologiaiot.entities.ApplicationUser;
+import com.unla.agroecologiaiot.entities.Session;
 import com.unla.agroecologiaiot.models.auth.LoginDTO;
 import com.unla.agroecologiaiot.models.auth.LoginResponse;
 import com.unla.agroecologiaiot.models.auth.ProfileDTO;
 import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
+import com.unla.agroecologiaiot.repositories.SessionRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -42,11 +45,13 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private Gson gson = new Gson();
 
     private ApplicationUserRepository applicationUserRepository;
+    private SessionRepository sessionRepository;
 
     public AuthenticationFilter(AuthenticationManager authenticationManager,
-            ApplicationUserRepository applicationUserRepository) {
+            ApplicationUserRepository applicationUserRepository, SessionRepository sessionRepository) {
         this.authenticationManager = authenticationManager;
         this.applicationUserRepository = applicationUserRepository;
+        this.sessionRepository = sessionRepository;
     }
 
     @Override
@@ -88,6 +93,16 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                 .setExpiration(exp)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
+
+        Session session = Session.builder()
+                .token(token)
+                .isActive(true)
+                .issuedAt(LocalDateTime.now())
+                .expiresAt(exp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
+                .user(validatedUser)
+                .build();
+
+        sessionRepository.save(session);
 
         ProfileDTO profile = ProfileDTO.builder().username(validatedUser.getUsername()).name(validatedUser.getName())
                 .surname(validatedUser.getSurname()).roleCode(validatedUser.getRole().getCode()).build();
