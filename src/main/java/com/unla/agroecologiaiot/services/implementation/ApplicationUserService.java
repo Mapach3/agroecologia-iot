@@ -40,6 +40,7 @@ public class ApplicationUserService implements IApplicationUserService, UserDeta
         ApplicationUser user = modelMapper.map(model, ApplicationUser.class);
 
         Role role = roleRepository.findById(model.getRoleId()).get();
+        user.setEnabled(true);
         user.setRole(role);
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 

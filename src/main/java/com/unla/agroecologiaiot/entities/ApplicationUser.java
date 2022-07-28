@@ -42,7 +42,7 @@ public class ApplicationUser implements UserDetails {
     private boolean enabled;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "roleId", nullable = false, foreignKey = @ForeignKey(name = "FK_Role_User"))
+    @JoinColumn(name = "roleId", nullable = false, foreignKey = @ForeignKey(name = "FK_User_Role"))
     private Role role;
 
     @Override

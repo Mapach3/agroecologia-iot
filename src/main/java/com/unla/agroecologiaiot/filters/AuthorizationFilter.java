@@ -1,10 +1,6 @@
 package com.unla.agroecologiaiot.filters;
 
 import java.io.IOException;
-import java.nio.file.AccessDeniedException;
-import java.util.ArrayList;
-import java.util.Collection;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
