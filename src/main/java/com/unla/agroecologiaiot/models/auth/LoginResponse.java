@@ -13,5 +13,6 @@ public class LoginResponse {
 
     private String token;
     private ProfileDTO profile;
+    public String expiration;
 
 }

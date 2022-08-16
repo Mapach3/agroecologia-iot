@@ -1,5 +1,7 @@
 package com.unla.agroecologiaiot.controllers;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -43,6 +45,19 @@ public class UserController {
         }
 
         return new ResponseEntity("User Not Found", HttpStatus.NOT_FOUND);
+    }
+
+      
+    @PostMapping("logout")
+    public ResponseEntity<Boolean> logout(HttpServletRequest req) {
+        String token = req.getHeader("Authorization").split(" ")[1].toString();
+        boolean response = applicationUserService.logout(token);
+
+        if(response){
+            return new ResponseEntity<Boolean>(response, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<Boolean>(response, HttpStatus.BAD_REQUEST);
     }
 
 }

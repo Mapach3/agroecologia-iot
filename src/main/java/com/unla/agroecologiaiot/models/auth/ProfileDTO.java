@@ -1,5 +1,4 @@
 package com.unla.agroecologiaiot.models.auth;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

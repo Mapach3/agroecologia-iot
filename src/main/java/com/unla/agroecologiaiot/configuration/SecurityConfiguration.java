@@ -14,6 +14,7 @@ import com.unla.agroecologiaiot.filters.AuthenticationFilter;
 import com.unla.agroecologiaiot.filters.AuthorizationFilter;
 import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
 import com.unla.agroecologiaiot.repositories.SessionRepository;
+import com.unla.agroecologiaiot.services.ITokenService;
 import com.unla.agroecologiaiot.services.implementation.ApplicationUserService;
 
 import org.springframework.web.cors.CorsConfiguration;
@@ -31,6 +32,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private ApplicationUserRepository applicationUserRepository;
     @Autowired
     private SessionRepository sessionRepository;
+    @Autowired
+    private ITokenService tokenService;
 
     public SecurityConfiguration(ApplicationUserService userService) {
         this.userService = userService;
@@ -40,6 +43,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable().authorizeRequests()
                 .antMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL).permitAll()
+                .antMatchers(HttpMethod.POST, SecurityConstants.REFRESH_TOKEN_URL).permitAll()
                 .antMatchers(SecurityConstants.SWAGGER_URL_WHITELIST).permitAll()
                 // .antMatchers("/api/v1/secure/admin").hasAuthority("ADMINISTRADOR")
                 .anyRequest().authenticated()
@@ -51,7 +55,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     public AuthenticationFilter getAuthenticationFilter() throws Exception {
         final AuthenticationFilter authFilter = new AuthenticationFilter(authenticationManager(),
-                applicationUserRepository, sessionRepository);
+                applicationUserRepository, sessionRepository, tokenService);
         authFilter.setFilterProcessesUrl(SecurityConstants.LOGIN_URL);
         return authFilter;
     }
