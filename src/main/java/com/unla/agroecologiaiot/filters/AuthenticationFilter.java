@@ -1,13 +1,10 @@
 package com.unla.agroecologiaiot.filters;
 
 import java.io.IOException;
-import java.security.Key;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -21,7 +18,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
+import com.unla.agroecologiaiot.Helpers.JsonParse.JsonParser;
 import com.unla.agroecologiaiot.constants.Constants;
 import com.unla.agroecologiaiot.constants.SecurityConstants;
 import com.unla.agroecologiaiot.entities.ApplicationUser;
@@ -31,27 +28,23 @@ import com.unla.agroecologiaiot.models.auth.LoginResponse;
 import com.unla.agroecologiaiot.models.auth.ProfileDTO;
 import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
 import com.unla.agroecologiaiot.repositories.SessionRepository;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import com.unla.agroecologiaiot.services.ITokenService;
 
 import org.springframework.security.core.userdetails.User;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
-    private Gson gson = new Gson();
-
     private ApplicationUserRepository applicationUserRepository;
     private SessionRepository sessionRepository;
+    private ITokenService tokenService;
 
     public AuthenticationFilter(AuthenticationManager authenticationManager,
-            ApplicationUserRepository applicationUserRepository, SessionRepository sessionRepository) {
+            ApplicationUserRepository applicationUserRepository, SessionRepository sessionRepository, ITokenService tokenService) {
         this.authenticationManager = authenticationManager;
         this.applicationUserRepository = applicationUserRepository;
         this.sessionRepository = sessionRepository;
+        this.tokenService = tokenService;
     }
 
     @Override
@@ -73,26 +66,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             Authentication auth) throws IOException, ServletException {
 
         Date exp = new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME);
-        Key key = Keys.hmacShaKeyFor(SecurityConstants.SECRET.getBytes());
 
         ApplicationUser validatedUser = applicationUserRepository
                 .findByUsernameAndFetchRoleEagerly(((User) auth.getPrincipal()).getUsername()).get();
 
-        Map<String, Object> customClaims = new HashMap<String, Object>();
-        customClaims.put(SecurityConstants.CustomSecurityClaims.ROLE, validatedUser.getRole().getCode());
-        customClaims.put(SecurityConstants.CustomSecurityClaims.EMAIL, validatedUser.getEmail());
-        customClaims.put(SecurityConstants.CustomSecurityClaims.USERNAME, validatedUser.getUsername());
-
-        Claims claims = Jwts.claims(customClaims);
-
-        // Build JWT Token with custom claims
-        String token = Jwts.builder()
-                .setClaims(claims)
-                .setSubject(Long.toString(validatedUser.getUserId()))
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(exp)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .compact();
+        String token = tokenService.createToken(validatedUser, exp);
 
         Session session = Session.builder()
                 .token(token)
@@ -108,13 +86,12 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                 .surname(validatedUser.getSurname()).roleCode(validatedUser.getRole().getCode()).build();
 
         // Create response which will be stored in Web App
-        LoginResponse response = new LoginResponse(token, profile);
-        String jsonResponse = this.gson.toJson(response);
-
+        LoginResponse response = new LoginResponse(token, profile,
+                exp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().toString());
         // Set custom servlet response
         res.setStatus(HttpServletResponse.SC_OK);
         res.setContentType(Constants.ContentTypes.APPLICATION_JSON);
-        res.getWriter().print(jsonResponse);
+        res.getWriter().print(JsonParser.ToJson(response));
         res.getWriter().flush();
     }
 
@@ -124,7 +101,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         res.setContentType(Constants.ContentTypes.APPLICATION_JSON);
-        res.getWriter().print(this.gson.toJson("Revise sus credenciales"));
+        res.getWriter().print(JsonParser.ToJson("Revise sus credenciales"));
         res.getWriter().flush();
     }
 }

@@ -36,7 +36,7 @@ public class Session {
     private LocalDateTime issuedAt;
     private LocalDateTime expiresAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "userId", nullable = false, foreignKey = @ForeignKey(name = "FK_Session_User"))
     private ApplicationUser user;
 

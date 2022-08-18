@@ -10,4 +10,6 @@ public interface IApplicationUserService {
 
     public ApplicationUserModel getUser(String username);
 
+    public boolean logout(String token);
+
 }

@@ -8,6 +8,7 @@ public class SecurityConstants {
     public static final Long EXPIRATION_TIME = 1000L * 60 * 30; // 30 Minutes
 
     public static final String LOGIN_URL = "/api/v1/auth/login";
+    public static final String REFRESH_TOKEN_URL = "/api/v1/auth/refreshtoken";
 
     public static final String[] SWAGGER_URL_WHITELIST = {
             "/v3/api-docs/**",

@@ -11,7 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import com.google.gson.Gson;
+import com.unla.agroecologiaiot.Helpers.JsonParse.JsonParser;
 import com.unla.agroecologiaiot.constants.Constants;
 import com.unla.agroecologiaiot.constants.SecurityConstants;
 import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
@@ -22,7 +22,6 @@ import io.jsonwebtoken.Jwts;
 public class AuthorizationFilter extends BasicAuthenticationFilter {
 
     private ApplicationUserRepository applicationUserRepository;
-    private Gson gson = new Gson();
 
     public AuthorizationFilter(AuthenticationManager authenticationManager,
             ApplicationUserRepository applicationUserRepository) {
@@ -50,12 +49,11 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         } catch (Exception ex) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType(Constants.ContentTypes.APPLICATION_JSON);
-            response.getWriter().print(this.gson.toJson(ex.getMessage()));
+            response.getWriter().print(JsonParser.ToJson(ex.getMessage()));
             response.getWriter().flush();
 
             return;
         }
-
     }
 
     private UsernamePasswordAuthenticationToken authenticate(HttpServletRequest request) {
