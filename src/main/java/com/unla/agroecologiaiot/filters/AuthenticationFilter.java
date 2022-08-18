@@ -11,8 +11,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,7 +18,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
+import com.unla.agroecologiaiot.Helpers.JsonParse.JsonParser;
 import com.unla.agroecologiaiot.constants.Constants;
 import com.unla.agroecologiaiot.constants.SecurityConstants;
 import com.unla.agroecologiaiot.entities.ApplicationUser;
@@ -37,8 +35,6 @@ import org.springframework.security.core.userdetails.User;
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
-    private Gson gson = new Gson();
-
     private ApplicationUserRepository applicationUserRepository;
     private SessionRepository sessionRepository;
     private ITokenService tokenService;
@@ -74,7 +70,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         ApplicationUser validatedUser = applicationUserRepository
                 .findByUsernameAndFetchRoleEagerly(((User) auth.getPrincipal()).getUsername()).get();
 
-        String token = tokenService.CreateToken(validatedUser, exp);
+        String token = tokenService.createToken(validatedUser, exp);
 
         Session session = Session.builder()
                 .token(token)
@@ -92,12 +88,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         // Create response which will be stored in Web App
         LoginResponse response = new LoginResponse(token, profile,
                 exp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().toString());
-        String jsonResponse = this.gson.toJson(response);
-
         // Set custom servlet response
         res.setStatus(HttpServletResponse.SC_OK);
         res.setContentType(Constants.ContentTypes.APPLICATION_JSON);
-        res.getWriter().print(jsonResponse);
+        res.getWriter().print(JsonParser.ToJson(response));
         res.getWriter().flush();
     }
 
@@ -107,7 +101,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         res.setContentType(Constants.ContentTypes.APPLICATION_JSON);
-        res.getWriter().print(this.gson.toJson("Revise sus credenciales"));
+        res.getWriter().print(JsonParser.ToJson("Revise sus credenciales"));
         res.getWriter().flush();
     }
 }

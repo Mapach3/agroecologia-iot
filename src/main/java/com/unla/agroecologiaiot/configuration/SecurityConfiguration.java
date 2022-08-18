@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -43,15 +44,18 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable().authorizeRequests()
                 .antMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL).permitAll()
-                .antMatchers(HttpMethod.POST, SecurityConstants.REFRESH_TOKEN_URL).permitAll()
                 .antMatchers(SecurityConstants.SWAGGER_URL_WHITELIST).permitAll()
-                // .antMatchers("/api/v1/secure/admin").hasAuthority("ADMINISTRADOR")
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(getAuthenticationFilter())
                 .addFilter(new AuthorizationFilter(authenticationManager(), applicationUserRepository))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
+
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers(SecurityConstants.REFRESH_TOKEN_URL);
+    }
+
 
     public AuthenticationFilter getAuthenticationFilter() throws Exception {
         final AuthenticationFilter authFilter = new AuthenticationFilter(authenticationManager(),
