@@ -1,7 +1,9 @@
 package com.unla.agroecologiaiot.services.implementation;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +22,11 @@ public class RoleService  implements IRoleService {
     @Qualifier("roleRepository")
     private RoleRepository roleRepository;
 
-    public ResponseEntity<String> put(RoleModel roleModel) {
+    private ModelMapper modelMapper = new ModelMapper();
+
+    public ResponseEntity<String> put(RoleModel roleModel, long id) {
         try {
-            Role role = roleRepository.getById(roleModel.getRoleId());
+            Role role = roleRepository.getById(id);
 
             if(role != null){
                 role.setName(roleModel.getName());
@@ -43,7 +47,13 @@ public class RoleService  implements IRoleService {
             List<Role> roles = roleRepository.findAll();
 
             if(roles.size() > 0){
-                return Message.Ok(roles);
+                List<RoleModel> rolesModel = new ArrayList<RoleModel>();
+                
+                for (Role role : roles) {
+                    rolesModel.add(modelMapper.map(role, RoleModel.class));
+                }          
+
+                return Message.Ok(rolesModel);
             }
             
             return Message.ErrorSearchEntity();

@@ -66,12 +66,12 @@ public class ApplicationUserService
     }
   }
 
-  public ResponseEntity<String> put(ApplicationUserModel model, long id){
+  public ResponseEntity<String> put(ApplicationUserModel model, long id) {
     try {
       ApplicationUser user = applicationUserRepository.getById(id);
       Role role = roleRepository.findById(model.getRoleId()).get();
 
-      if(user == null || role == null){
+      if (user == null || role == null) {
         return Message.ErrorSearchEntity();
       }
 
@@ -89,15 +89,31 @@ public class ApplicationUserService
     }
   }
 
+  public ResponseEntity<String> delete(long id) {
+    try {
+      applicationUserRepository.deleteById(id);
+      return Message.Ok(true);
 
-  public ApplicationUserModel getUser(long id) {
-    Optional<ApplicationUser> dbUser = applicationUserRepository.findByIdAndFetchRoleEagerly(
-        id);
-
-    if (dbUser.isPresent()) {
-      return modelMapper.map(dbUser.get(), ApplicationUserModel.class);
+    } catch (Exception e) {
+      return Message.ErrorException();
     }
-    return null;
+  }
+
+
+  public ResponseEntity<String> getById(long id) {
+    try {
+      Optional<ApplicationUser> dbUser = applicationUserRepository.findByIdAndFetchRoleEagerly(id);
+
+      if (dbUser.isPresent()) {
+        dbUser.get().setPassword(null);
+        return Message.Ok(modelMapper.map(dbUser.get(), ApplicationUserModel.class));
+      }
+
+      return Message.ErrorSearchEntity();
+
+    } catch (Exception e) {
+      return Message.ErrorException();
+    }
   }
 
   public ResponseEntity<String> logout(String token) {
@@ -117,14 +133,20 @@ public class ApplicationUserService
     }
   }
 
-  public ApplicationUserModel getUser(String username) {
-    Optional<ApplicationUser> dbUser = applicationUserRepository.findByUsernameAndFetchRoleEagerly(
-        username);
+  public ResponseEntity<String> getByUsername(String username) {
+    try {
+      Optional<ApplicationUser> dbUser = applicationUserRepository.findByUsernameAndFetchRoleEagerly(username);
 
-    if (dbUser.isPresent()) {
-      return modelMapper.map(dbUser.get(), ApplicationUserModel.class);
+      if (dbUser.isPresent()) {
+        dbUser.get().setPassword(null);
+        return Message.Ok(modelMapper.map(dbUser.get(), ApplicationUserModel.class));
+      }
+
+      return Message.ErrorSearchEntity();
+      
+    } catch (Exception e) {
+      return Message.ErrorException();
     }
-    return null;
   }
 
   // Auth methods (from UserDetailsService)
