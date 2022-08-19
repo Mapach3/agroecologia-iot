@@ -55,11 +55,15 @@ public class UserController {
         return applicationUserService.delete(id);
     }
 
+    @GetMapping("")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<String> getList() {
+        return applicationUserService.getList();
+    }
 
-    // @PostMapping("")
-    // @PreAuthorize("hasAuthority('ADMIN')")
-    // @SecurityRequirements 
-    // public ResponseEntity<String> getList(@RequestBody ApplicationUserModel model) {
-    //     // return applicationUserService.saveOrUpdate(model);
-    // }
+    @GetMapping("role/{roleId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<String> getListByRoleId(@PathVariable long roleId) {
+        return applicationUserService.getListByRoleId(roleId);
+    }
 }

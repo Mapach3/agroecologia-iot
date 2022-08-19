@@ -2,6 +2,9 @@ package com.unla.agroecologiaiot.services.implementation;
 
 import static java.util.Collections.emptyList;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.unla.agroecologiaiot.entities.ApplicationUser;
 import com.unla.agroecologiaiot.entities.Role;
 import com.unla.agroecologiaiot.entities.Session;
@@ -132,6 +135,50 @@ public class ApplicationUserService
 
       return Message.ErrorSearchEntity();
       
+    } catch (Exception e) {
+      return Message.ErrorException();
+    }
+  }
+
+  public ResponseEntity<String> getList() {
+    try {
+      List<ApplicationUser> dbUser = applicationUserRepository.findAll();
+
+      if (dbUser.size() > 0) {
+        List<ApplicationUserModel> applicationUserModels = new ArrayList<ApplicationUserModel>();
+                
+        for (ApplicationUser user : dbUser) {
+          user.setPassword(null);
+          applicationUserModels.add(modelMapper.map(user, ApplicationUserModel.class));
+        }        
+
+        return Message.Ok(applicationUserModels);
+      }
+
+      return Message.ErrorSearchEntity();
+
+    } catch (Exception e) {
+      return Message.ErrorException();
+    }
+  }
+
+  public ResponseEntity<String> getListByRoleId(long id) {
+    try {
+      List<ApplicationUser> dbUser = applicationUserRepository.findAllUsersByRoleId(id);
+
+      if (dbUser.size() > 0) {
+        List<ApplicationUserModel> applicationUserModels = new ArrayList<ApplicationUserModel>();
+                
+        for (ApplicationUser user : dbUser) {
+          user.setPassword(null);
+          applicationUserModels.add(modelMapper.map(user, ApplicationUserModel.class));
+        }        
+
+        return Message.Ok(applicationUserModels);
+      }
+
+      return Message.ErrorSearchEntity();
+
     } catch (Exception e) {
       return Message.ErrorException();
     }

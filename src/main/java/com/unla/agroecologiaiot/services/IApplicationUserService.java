@@ -11,6 +11,8 @@ public interface IApplicationUserService {
     public ResponseEntity<String> delete(long id);
     public ResponseEntity<String> getById(long id);
     public ResponseEntity<String> getByUsername(String username);
+    public ResponseEntity<String> getListByRoleId(long id);
+    public ResponseEntity<String> getList();
 
     public ResponseEntity<String> logout(String token);
 

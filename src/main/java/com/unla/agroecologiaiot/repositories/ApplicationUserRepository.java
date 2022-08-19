@@ -1,5 +1,6 @@
 package com.unla.agroecologiaiot.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,5 +20,8 @@ public interface ApplicationUserRepository extends JpaRepository<ApplicationUser
 
     @Query("SELECT u FROM ApplicationUser u JOIN FETCH u.role where u.username = (:username)")
     public abstract Optional<ApplicationUser> findByUsernameAndFetchRoleEagerly(@Param("username") String username);
+
+    @Query("SELECT u FROM ApplicationUser u JOIN FETCH u.role r where r.roleId = (:id)")
+    public abstract List<ApplicationUser> findAllUsersByRoleId(@Param("id") long id);
 
 }
