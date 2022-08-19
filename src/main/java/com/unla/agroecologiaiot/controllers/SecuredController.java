@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SecuredController {
 
         @GetMapping("admin")
-        @PreAuthorize("hasAuthority('ADMINISTRADOR')")
+        @PreAuthorize("hasAuthority('ADMIN')")
         public ResponseEntity<String> getAdminSecuredEndpoint() {
 
                 return new ResponseEntity<String>(

@@ -11,7 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import com.unla.agroecologiaiot.Helpers.JsonParse.JsonParser;
+import com.unla.agroecologiaiot.helpers.JsonParse.JsonParser;
 import com.unla.agroecologiaiot.constants.Constants;
 import com.unla.agroecologiaiot.constants.SecurityConstants;
 import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
@@ -49,7 +49,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         } catch (Exception ex) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType(Constants.ContentTypes.APPLICATION_JSON);
-            response.getWriter().print(JsonParser.ToJson(ex.getMessage()));
+            response.getWriter().print(JsonParser.toJson(ex.getMessage()));
             response.getWriter().flush();
 
             return;

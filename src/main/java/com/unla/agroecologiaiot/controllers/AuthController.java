@@ -2,6 +2,7 @@ package com.unla.agroecologiaiot.controllers;
 
 import com.unla.agroecologiaiot.constants.SecurityConstants;
 import com.unla.agroecologiaiot.models.auth.LoginDTO;
+import com.unla.agroecologiaiot.services.IApplicationUserService;
 import com.unla.agroecologiaiot.services.ITokenService;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -29,6 +30,10 @@ public class AuthController {
   @Qualifier("tokenService")
   private ITokenService tokenService;
 
+  @Autowired
+  @Qualifier("applicationUserService")
+  private IApplicationUserService applicationUserService;
+
   @PostMapping("login")
   @SecurityRequirements
   public void login(@RequestBody @Validated LoginDTO loginDto) {
@@ -41,5 +46,12 @@ public class AuthController {
       LocalDateTime dateExpires = exp.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
       return tokenService.refreshToken(exp, dateExpires, oldToken);
+  }
+
+        
+  @PostMapping("logout")
+  public ResponseEntity<String> logout(HttpServletRequest req) {
+      String token = req.getHeader("Authorization").split(" ")[1].toString();
+      return applicationUserService.logout(token);
   }
 }

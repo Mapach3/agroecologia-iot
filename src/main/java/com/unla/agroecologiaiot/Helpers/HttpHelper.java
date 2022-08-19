@@ -1,4 +1,4 @@
-package com.unla.agroecologiaiot.Helpers;
+package com.unla.agroecologiaiot.helpers;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -9,7 +9,7 @@ public class HttpHelper {
 
     public static class Http {
 
-        public static HttpHeaders GetContentType_Json() {
+        public static HttpHeaders getContentType_Json() {
             headers.setContentType(MediaType.APPLICATION_JSON);
             return headers;
         }

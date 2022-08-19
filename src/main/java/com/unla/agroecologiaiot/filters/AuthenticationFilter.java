@@ -18,7 +18,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.unla.agroecologiaiot.Helpers.JsonParse.JsonParser;
+import com.unla.agroecologiaiot.helpers.JsonParse.JsonParser;
 import com.unla.agroecologiaiot.constants.Constants;
 import com.unla.agroecologiaiot.constants.SecurityConstants;
 import com.unla.agroecologiaiot.entities.ApplicationUser;
@@ -91,7 +91,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         // Set custom servlet response
         res.setStatus(HttpServletResponse.SC_OK);
         res.setContentType(Constants.ContentTypes.APPLICATION_JSON);
-        res.getWriter().print(JsonParser.ToJson(response));
+        res.getWriter().print(JsonParser.toJson(response));
         res.getWriter().flush();
     }
 
@@ -101,7 +101,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         res.setContentType(Constants.ContentTypes.APPLICATION_JSON);
-        res.getWriter().print(JsonParser.ToJson("Revise sus credenciales"));
+        res.getWriter().print(JsonParser.toJson("Revise sus credenciales"));
         res.getWriter().flush();
     }
 }

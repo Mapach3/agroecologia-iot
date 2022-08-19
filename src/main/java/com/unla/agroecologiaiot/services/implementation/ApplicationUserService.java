@@ -5,6 +5,7 @@ import static java.util.Collections.emptyList;
 import com.unla.agroecologiaiot.entities.ApplicationUser;
 import com.unla.agroecologiaiot.entities.Role;
 import com.unla.agroecologiaiot.entities.Session;
+import com.unla.agroecologiaiot.helpers.MessageHelper.Message;
 import com.unla.agroecologiaiot.models.ApplicationUserModel;
 import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
 import com.unla.agroecologiaiot.repositories.RoleRepository;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,7 +25,7 @@ import org.springframework.stereotype.Service;
 
 @Service("applicationUserService")
 public class ApplicationUserService
-  implements IApplicationUserService, UserDetailsService {
+    implements IApplicationUserService, UserDetailsService {
 
   private ModelMapper modelMapper = new ModelMapper();
   private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
@@ -40,23 +42,57 @@ public class ApplicationUserService
   @Qualifier("sessionRepository")
   private SessionRepository sessionRepository;
 
-  @Override
-  public long saveOrUpdate(ApplicationUserModel model) {
-    ApplicationUser user = modelMapper.map(model, ApplicationUser.class);
+  public ResponseEntity<String> saveOrUpdate(ApplicationUserModel model) {
+    try {
+      model.setUserId(0);
+      ApplicationUser user = modelMapper.map(model, ApplicationUser.class);
 
-    Role role = roleRepository.findById(model.getRoleId()).get();
-    user.setEnabled(true);
-    user.setRole(role);
-    user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+      Role role = roleRepository.findById(model.getRoleId()).get();
 
-    return applicationUserRepository.save(user).getUserId();
+      if (role == null) {
+        return Message.ErrorSearchEntity();
+      }
+
+      user.setEnabled(true);
+      user.setRole(role);
+      user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+
+      long response = applicationUserRepository.save(user).getUserId();
+
+      return Message.Ok(response);
+
+    } catch (Exception e) {
+      return Message.ErrorException();
+    }
   }
 
-  @Override
+  public ResponseEntity<String> put(ApplicationUserModel model, long id){
+    try {
+      ApplicationUser user = applicationUserRepository.getById(id);
+      Role role = roleRepository.findById(model.getRoleId()).get();
+
+      if(user == null || role == null){
+        return Message.ErrorSearchEntity();
+      }
+
+      user.setEmail(model.getEmail());
+      user.setName(model.getName());
+      user.setSurname(model.getSurname());
+      user.setRole(role);
+
+      long response = applicationUserRepository.save(user).getUserId();
+
+      return Message.Ok(response);
+
+    } catch (Exception e) {
+      return Message.ErrorException();
+    }
+  }
+
+
   public ApplicationUserModel getUser(long id) {
     Optional<ApplicationUser> dbUser = applicationUserRepository.findByIdAndFetchRoleEagerly(
-      id
-    );
+        id);
 
     if (dbUser.isPresent()) {
       return modelMapper.map(dbUser.get(), ApplicationUserModel.class);
@@ -64,22 +100,26 @@ public class ApplicationUserService
     return null;
   }
 
-  @Override
-  public boolean logout(String token) {
-    Optional<Session> session = sessionRepository.findByToken(token);
-    if (session.isPresent()) {
-      session.get().setActive(false);
-      sessionRepository.save(session.get());
-      return true;
-    }
+  public ResponseEntity<String> logout(String token) {
+    try {
+      Optional<Session> session = sessionRepository.findByToken(token);
 
-    return false;
+      if (session.isPresent()) {
+        session.get().setActive(false);
+        sessionRepository.save(session.get());
+        return Message.Ok(true);
+      }
+
+      return Message.ErrorSearchEntity();
+
+    } catch (Exception e) {
+      return Message.ErrorException();
+    }
   }
 
   public ApplicationUserModel getUser(String username) {
     Optional<ApplicationUser> dbUser = applicationUserRepository.findByUsernameAndFetchRoleEagerly(
-      username
-    );
+        username);
 
     if (dbUser.isPresent()) {
       return modelMapper.map(dbUser.get(), ApplicationUserModel.class);
@@ -91,23 +131,21 @@ public class ApplicationUserService
 
   @Override
   public UserDetails loadUserByUsername(String username)
-    throws UsernameNotFoundException {
+      throws UsernameNotFoundException {
     Optional<ApplicationUser> applicationUser = applicationUserRepository.findByUsername(
-      username
-    );
+        username);
 
     if (!applicationUser.isPresent()) {
       throw new UsernameNotFoundException("Username not found");
     }
 
     return new User(
-      applicationUser.get().getUsername(),
-      applicationUser.get().getPassword(),
-      applicationUser.get().isEnabled(),
-      true,
-      true,
-      true,
-      emptyList()
-    );
+        applicationUser.get().getUsername(),
+        applicationUser.get().getPassword(),
+        applicationUser.get().isEnabled(),
+        true,
+        true,
+        true,
+        emptyList());
   }
 }
