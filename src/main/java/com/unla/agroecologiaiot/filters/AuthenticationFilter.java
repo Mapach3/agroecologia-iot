@@ -3,7 +3,6 @@ package com.unla.agroecologiaiot.filters;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
 
 import javax.servlet.FilterChain;
@@ -54,7 +53,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         try {
             LoginDTO user = new ObjectMapper().readValue(req.getInputStream(), LoginDTO.class);
             return authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), new ArrayList()));
+                    new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
 
         } catch (IOException e) {
             throw new RuntimeException(e);
