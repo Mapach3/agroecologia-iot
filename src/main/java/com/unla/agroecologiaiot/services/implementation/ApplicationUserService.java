@@ -44,6 +44,12 @@ public class ApplicationUserService
 
   public ResponseEntity<String> saveOrUpdate(ApplicationUserModel model) {
     try {
+      Optional<ApplicationUser> dbUser = applicationUserRepository.findByUsernameAndFetchRoleEagerly(model.getUsername());
+
+      if(dbUser.isPresent()){
+        return Message.ErrorValidation();
+      }
+      
       model.setUserId(0);
       ApplicationUser user = modelMapper.map(model, ApplicationUser.class);
 
@@ -99,7 +105,6 @@ public class ApplicationUserService
     }
   }
 
-
   public ResponseEntity<String> getById(long id) {
     try {
       Optional<ApplicationUser> dbUser = applicationUserRepository.findByIdAndFetchRoleEagerly(id);
@@ -107,23 +112,6 @@ public class ApplicationUserService
       if (dbUser.isPresent()) {
         dbUser.get().setPassword(null);
         return Message.Ok(modelMapper.map(dbUser.get(), ApplicationUserModel.class));
-      }
-
-      return Message.ErrorSearchEntity();
-
-    } catch (Exception e) {
-      return Message.ErrorException();
-    }
-  }
-
-  public ResponseEntity<String> logout(String token) {
-    try {
-      Optional<Session> session = sessionRepository.findByToken(token);
-
-      if (session.isPresent()) {
-        session.get().setActive(false);
-        sessionRepository.save(session.get());
-        return Message.Ok(true);
       }
 
       return Message.ErrorSearchEntity();
@@ -144,6 +132,23 @@ public class ApplicationUserService
 
       return Message.ErrorSearchEntity();
       
+    } catch (Exception e) {
+      return Message.ErrorException();
+    }
+  }
+
+  public ResponseEntity<String> logout(String token) {
+    try {
+      Optional<Session> session = sessionRepository.findByToken(token);
+
+      if (session.isPresent()) {
+        session.get().setActive(false);
+        sessionRepository.save(session.get());
+        return Message.Ok(true);
+      }
+
+      return Message.ErrorSearchEntity();
+
     } catch (Exception e) {
       return Message.ErrorException();
     }
