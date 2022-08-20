@@ -11,8 +11,8 @@ import lombok.Getter;
 @Getter
 public class PagerParameters {
 
-    private int pageSize;
-    private int pageIndex;
+    private int pageSize = 1;
+    private int pageIndex = 0;
     private String sortField;
     private String sortDirection;
     private List<FilterRequest> filters;

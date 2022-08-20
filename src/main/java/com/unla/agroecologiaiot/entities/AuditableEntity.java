@@ -22,20 +22,20 @@ import lombok.Setter;
 public class AuditableEntity {
     
     @Column(nullable = false)
-    public long CreatedBy;
+    public String CreatedBy = "Prueba";
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    public LocalDateTime CreatedAt;
+    public LocalDateTime CreatedAt = LocalDateTime.now();
 
-    @Column(nullable = false)
-    public long EditedBy;
+    @Column(nullable = true)
+    public String EditedBy = "";
 
     @LastModifiedDate
     @Column(nullable = false)
-    public LocalDateTime UpdatedAt;
+    public LocalDateTime UpdatedAt = LocalDateTime.now();
     
-    @Column(nullable = false)
-    public boolean IsDeleted;
+    // @Column(nullable = false)
+    // public boolean IsDeleted;
 
 }
