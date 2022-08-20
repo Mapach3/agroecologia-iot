@@ -184,10 +184,11 @@ public class ApplicationUserService
         for (ApplicationUser user : dbUser.toList()) {
           user.setPassword(null);
           applicationUserModels.add(modelMapper.map(user, ApplicationUserModel.class));
-          paginatedList.setList(applicationUserModels);
-          paginatedList.setCount(dbUser.getTotalElements());
-          paginatedList.setIndex(dbUser.getNumber());
         }        
+
+        paginatedList.setList(applicationUserModels);
+        paginatedList.setCount(dbUser.getTotalElements());
+        paginatedList.setIndex(dbUser.getNumber());
 
         return Message.Ok(paginatedList);
       }
@@ -198,7 +199,7 @@ public class ApplicationUserService
       return Message.ErrorException();
     }
   }
-//NO HARIA FALTA ESTE ENDPOINT SI DEJAMOS EL FILTRADO GENERICO, SE PUEDE USAR LONG Y EL OPERADOR EQUAL
+
   public ResponseEntity<String> getListByRoleId(long id) {
     try {
       List<ApplicationUser> dbUser = applicationUserRepository.findAllUsersByRoleId(id);
