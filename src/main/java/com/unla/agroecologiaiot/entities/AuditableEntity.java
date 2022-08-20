@@ -38,8 +38,7 @@ public abstract class AuditableEntity<T> {
     @Temporal(TIMESTAMP)
     @Column(nullable = true, insertable = false)
     protected Date updatedAt;
-    
-    // @Column(nullable = false)
-    // public boolean IsDeleted;
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    public boolean isDeleted;
 }

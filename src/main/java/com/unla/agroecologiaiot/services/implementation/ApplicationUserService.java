@@ -108,7 +108,15 @@ public class ApplicationUserService
 
   public ResponseEntity<String> delete(long id) {
     try {
-      applicationUserRepository.deleteById(id);
+      Optional<ApplicationUser> user = applicationUserRepository.findById(id);
+
+      if(!user.isPresent()){
+        return Message.ErrorValidation();
+      }
+
+      user.get().setDeleted(true);
+      applicationUserRepository.save(user.get());
+
       return Message.Ok(true);
 
     } catch (Exception e) {

@@ -18,13 +18,13 @@ public interface ApplicationUserRepository extends JpaRepository<ApplicationUser
 
     public abstract Optional<ApplicationUser> findByUsername(String username);
 
-    @Query("SELECT u FROM ApplicationUser u JOIN FETCH u.role where u.userId = (:id)")
+    @Query("SELECT u FROM ApplicationUser u JOIN FETCH u.role where u.userId = (:id) and u.isDeleted = false")
     public abstract Optional<ApplicationUser> findByIdAndFetchRoleEagerly(@Param("id") long id);
 
-    @Query("SELECT u FROM ApplicationUser u JOIN FETCH u.role where u.username = (:username)")
+    @Query("SELECT u FROM ApplicationUser u JOIN FETCH u.role where u.username = (:username) and u.isDeleted = false")
     public abstract Optional<ApplicationUser> findByUsernameAndFetchRoleEagerly(@Param("username") String username);
 
-    @Query("SELECT u FROM ApplicationUser u JOIN FETCH u.role r where r.roleId = (:id)")
+    @Query("SELECT u FROM ApplicationUser u JOIN FETCH u.role r where r.roleId = (:id) and u.isDeleted = false")
     public abstract List<ApplicationUser> findAllUsersByRoleId(@Param("id") long id);
 
     
