@@ -3,12 +3,14 @@ package com.unla.agroecologiaiot.entities;
 import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 
 import lombok.Getter;
@@ -19,7 +21,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-public class Role extends AuditableEntity implements GrantedAuthority {
+@EntityListeners(AuditingEntityListener.class)
+public class Role extends AuditableEntity<Long> implements GrantedAuthority {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

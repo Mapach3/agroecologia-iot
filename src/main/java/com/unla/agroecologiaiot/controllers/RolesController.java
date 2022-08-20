@@ -15,8 +15,8 @@ import com.unla.agroecologiaiot.models.RoleModel;
 import com.unla.agroecologiaiot.services.IRoleService;
 
 @RestController
-@RequestMapping("api/v1/role")
-public class RoleController {
+@RequestMapping("api/v1/roles")
+public class RolesController {
 
     @Autowired
     @Qualifier("roleService")

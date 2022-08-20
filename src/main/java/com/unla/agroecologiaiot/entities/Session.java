@@ -24,7 +24,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Session extends AuditableEntity{
+public class Session{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -65,7 +65,7 @@ public class ApplicationUserService
       ApplicationUser user = modelMapper.map(model, ApplicationUser.class);
 
       Role role = roleRepository.findById(model.getRoleId()).get();
-
+      
       if (role == null) {
         return Message.ErrorSearchEntity();
       }

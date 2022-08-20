@@ -1,14 +1,15 @@
 package com.unla.agroecologiaiot.entities;
 
-import java.time.LocalDateTime;
-
+import java.util.Date;
 import javax.persistence.Column;
-import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Temporal;
+import static javax.persistence.TemporalType.TIMESTAMP;
 
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,22 +19,25 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
-public class AuditableEntity {
+public abstract class AuditableEntity<T> {
     
-    @Column(nullable = false)
-    public String CreatedBy = "Prueba";
+    @CreatedBy
+    @Column(nullable = false, updatable = false)
+    protected T createdBy;
 
     @CreatedDate
+    @Temporal(TIMESTAMP)
     @Column(nullable = false, updatable = false)
-    public LocalDateTime CreatedAt = LocalDateTime.now();
+    protected Date createdAt;
 
-    @Column(nullable = true)
-    public String EditedBy = "";
+    @LastModifiedBy
+    @Column(nullable = true, insertable = false)
+    protected T  editedBy;
 
     @LastModifiedDate
-    @Column(nullable = false)
-    public LocalDateTime UpdatedAt = LocalDateTime.now();
+    @Temporal(TIMESTAMP)
+    @Column(nullable = true, insertable = false)
+    protected Date updatedAt;
     
     // @Column(nullable = false)
     // public boolean IsDeleted;
