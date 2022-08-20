@@ -1,8 +1,8 @@
-package com.unla.agroecologiaiot.models.paginated;
+package com.unla.agroecologiaiot.shared.paginated;
 
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+@Data
 public class PagerParametersModel {
 
     private int pageSize = 1;

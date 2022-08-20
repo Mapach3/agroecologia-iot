@@ -1,4 +1,4 @@
-package com.unla.agroecologiaiot.models.paginated.especification;
+package com.unla.agroecologiaiot.shared.paginated.especification;
 
 import java.io.Serializable;
 import java.util.List;

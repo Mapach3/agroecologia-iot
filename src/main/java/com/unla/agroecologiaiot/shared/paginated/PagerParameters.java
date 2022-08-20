@@ -1,18 +1,18 @@
-package com.unla.agroecologiaiot.models.paginated;
+package com.unla.agroecologiaiot.shared.paginated;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.unla.agroecologiaiot.models.paginated.especification.FilterRequest;
+import com.unla.agroecologiaiot.shared.paginated.especification.FilterRequest;
 
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+@Data
 public class PagerParameters {
 
-    private int pageSize = 1;
-    private int pageIndex = 0;
+    private int pageSize;
+    private int pageIndex;
     private String sortField;
     private String sortDirection;
     private List<FilterRequest> filters;

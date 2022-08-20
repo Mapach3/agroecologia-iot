@@ -4,7 +4,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import com.unla.agroecologiaiot.models.paginated.PagerParameters;
+import com.unla.agroecologiaiot.shared.paginated.PagerParameters;
 
 public class PageHelper {
 

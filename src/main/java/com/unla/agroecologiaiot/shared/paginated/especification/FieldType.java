@@ -1,4 +1,4 @@
-package com.unla.agroecologiaiot.models.paginated.especification;
+package com.unla.agroecologiaiot.shared.paginated.especification;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

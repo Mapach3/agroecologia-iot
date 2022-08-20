@@ -11,13 +11,15 @@ import com.unla.agroecologiaiot.entities.Session;
 import com.unla.agroecologiaiot.helpers.MessageHelper.Message;
 import com.unla.agroecologiaiot.helpers.PageHelper.Paged;
 import com.unla.agroecologiaiot.models.ApplicationUserModel;
-import com.unla.agroecologiaiot.models.paginated.PagerParameters;
-import com.unla.agroecologiaiot.models.paginated.PaginatedList;
-import com.unla.agroecologiaiot.models.paginated.SearchEspecification;
 import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
 import com.unla.agroecologiaiot.repositories.RoleRepository;
 import com.unla.agroecologiaiot.repositories.SessionRepository;
 import com.unla.agroecologiaiot.services.IApplicationUserService;
+import com.unla.agroecologiaiot.shared.paginated.PagerParameters;
+import com.unla.agroecologiaiot.shared.paginated.PagerParametersModel;
+import com.unla.agroecologiaiot.shared.paginated.PaginatedList;
+import com.unla.agroecologiaiot.shared.paginated.SearchEspecification;
+
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
@@ -156,11 +158,12 @@ public class ApplicationUserService
     }
   }
 
-  public ResponseEntity<String> getList(PagerParameters pageParameters) {
+  public ResponseEntity<String> getList(PagerParametersModel pageParametersModel) {
     try {
+      PagerParameters pageParameters = modelMapper.map(pageParametersModel, PagerParameters.class);
 
-      if(pageParameters.getPageSize() <= 0 || pageParameters.getPageIndex() < 0){
-        return Message.ErrorValidation();
+      if(pageParameters.getPageSize() == 0){
+        pageParameters.setPageSize(10);
       }
 
       Pageable page = Paged.CreatePage(pageParameters);

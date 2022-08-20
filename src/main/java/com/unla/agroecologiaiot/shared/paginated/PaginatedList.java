@@ -1,4 +1,4 @@
-package com.unla.agroecologiaiot.models.paginated;
+package com.unla.agroecologiaiot.shared.paginated;
 
 import java.util.List;
 

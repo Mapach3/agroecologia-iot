@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.unla.agroecologiaiot.models.ApplicationUserModel;
-import com.unla.agroecologiaiot.models.paginated.PagerParameters;
 import com.unla.agroecologiaiot.services.IApplicationUserService;
+import com.unla.agroecologiaiot.shared.paginated.PagerParametersModel;
 
 @RestController
 @RequestMapping("api/v1/users")
@@ -56,10 +56,10 @@ public class UserController {
         return applicationUserService.delete(id);
     }
 
-    @PostMapping("list")
+    @GetMapping("")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<String> getList(@RequestBody PagerParameters pagerParameters) {
-        return applicationUserService.getList(pagerParameters);
+    public ResponseEntity<String> getList(PagerParametersModel pageParameters) {
+        return applicationUserService.getList(pageParameters);
     }
 
     @GetMapping("role/{roleId}")

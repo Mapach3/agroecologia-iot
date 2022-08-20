@@ -1,4 +1,4 @@
-package com.unla.agroecologiaiot.models.paginated;
+package com.unla.agroecologiaiot.shared.paginated;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -7,7 +7,7 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import com.unla.agroecologiaiot.models.paginated.especification.FilterRequest;
+import com.unla.agroecologiaiot.shared.paginated.especification.FilterRequest;
 
 import lombok.AllArgsConstructor;
 
