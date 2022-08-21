@@ -57,17 +57,18 @@ public class ApplicationUserService
 
   public ResponseEntity<String> saveOrUpdate(ApplicationUserModel model) {
     try {
-      Optional<ApplicationUser> dbUser = applicationUserRepository.findByUsernameAndFetchRoleEagerly(model.getUsername());
+      Optional<ApplicationUser> dbUser = applicationUserRepository
+          .findByUsernameAndFetchRoleEagerly(model.getUsername());
 
-      if(dbUser.isPresent()){
+      if (dbUser.isPresent()) {
         return Message.ErrorValidation();
       }
-      
+
       model.setUserId(0);
       ApplicationUser user = modelMapper.map(model, ApplicationUser.class);
 
       Role role = roleRepository.findById(model.getRoleId()).get();
-      
+
       if (role == null) {
         return Message.ErrorSearchEntity();
       }
@@ -112,7 +113,7 @@ public class ApplicationUserService
     try {
       Optional<ApplicationUser> user = applicationUserRepository.findById(id);
 
-      if(!user.isPresent()){
+      if (!user.isPresent()) {
         return Message.ErrorValidation();
       }
 
@@ -152,7 +153,7 @@ public class ApplicationUserService
       }
 
       return Message.ErrorSearchEntity();
-      
+
     } catch (Exception e) {
       return Message.ErrorException();
     }
@@ -162,13 +163,13 @@ public class ApplicationUserService
     try {
       PagerParameters pageParameters = modelMapper.map(pageParametersModel, PagerParameters.class);
 
-      if(pageParameters.getPageSize() == 0){
+      if (pageParameters.getPageSize() == 0) {
         pageParameters.setPageSize(10);
       }
 
       Pageable page = Paged.CreatePage(pageParameters);
 
-      if(page == null){
+      if (page == null) {
         return Message.ErrorValidation();
       }
 
@@ -176,15 +177,18 @@ public class ApplicationUserService
       SearchEspecification<ApplicationUser> especification = new SearchEspecification<>(pageParameters);
       Page<ApplicationUser> dbUser = applicationUserRepository.findAll(especification, page);
 
-      // Page<ApplicationUser> dbUser = applicationUserRepository.findByUsernameContaining(pageParameters.getSearch(),page);//.filter();   
-    
+      // Page<ApplicationUser> dbUser =
+      // applicationUserRepository.findByUsernameContaining(pageParameters.getSearch(),page);//.filter();
+
       if (dbUser.toList().size() > 0) {
         List<ApplicationUserModel> applicationUserModels = new ArrayList<ApplicationUserModel>();
-                
+
         for (ApplicationUser user : dbUser.toList()) {
-          user.setPassword(null);
-          applicationUserModels.add(modelMapper.map(user, ApplicationUserModel.class));
-        }        
+          if (!user.isDeleted) {
+            user.setPassword(null);
+            applicationUserModels.add(modelMapper.map(user, ApplicationUserModel.class));
+          }
+        }
 
         paginatedList.setList(applicationUserModels);
         paginatedList.setCount(dbUser.getTotalElements());
@@ -206,11 +210,11 @@ public class ApplicationUserService
 
       if (dbUser.size() > 0) {
         List<ApplicationUserModel> applicationUserModels = new ArrayList<ApplicationUserModel>();
-                
+
         for (ApplicationUser user : dbUser) {
           user.setPassword(null);
           applicationUserModels.add(modelMapper.map(user, ApplicationUserModel.class));
-        }        
+        }
 
         return Message.Ok(applicationUserModels);
       }
