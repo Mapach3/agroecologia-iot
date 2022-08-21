@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
@@ -13,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -25,7 +27,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "applicationuser")
-public class ApplicationUser implements UserDetails {
+@EntityListeners(AuditingEntityListener.class)
+public class ApplicationUser extends AuditableEntity<Long> implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

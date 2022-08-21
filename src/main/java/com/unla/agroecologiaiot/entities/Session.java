@@ -24,7 +24,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Session {
+public class Session{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

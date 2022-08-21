@@ -1,4 +1,4 @@
-package com.unla.agroecologiaiot.Helpers;
+package com.unla.agroecologiaiot.helpers;
 
 import com.google.gson.Gson;
 
@@ -8,11 +8,11 @@ public class JsonParse {
 
     public static class JsonParser {
 
-        public static String ToJson(Object obj) {
+        public static String toJson(Object obj) {
             return gson.toJson(obj);
         }
 
-        public static Object FromJson(String json, Class<Object> typeOf){
+        public static Object fromJson(String json, Class<Object> typeOf){
             return gson.fromJson(json, typeOf);
         }
     }

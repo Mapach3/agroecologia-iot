@@ -9,7 +9,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +17,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
-import com.unla.agroecologiaiot.Helpers.HttpHelper.Http;
-import com.unla.agroecologiaiot.Helpers.JsonParse.JsonParser;
 import com.unla.agroecologiaiot.constants.SecurityConstants;
 import com.unla.agroecologiaiot.entities.ApplicationUser;
 import com.unla.agroecologiaiot.entities.Session;
+import com.unla.agroecologiaiot.helpers.MessageHelper.Message;
 import com.unla.agroecologiaiot.models.auth.LoginResponse;
 import com.unla.agroecologiaiot.models.auth.ProfileDTO;
 import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
@@ -69,11 +67,14 @@ public class TokenService implements ITokenService {
             Optional<Session> session = sessionRepository.findByToken(oldToken);
 
             if (!session.isPresent()) {
-                return new ResponseEntity<String>(JsonParser.ToJson("Error de validacion."), Http.GetContentType_Json(),
-                        HttpStatus.BAD_REQUEST);
+                return Message.ErrorSearchEntity();
             }
 
             ApplicationUser user = session.get().getUser();
+
+            if(user == null){
+                return Message.ErrorSearchEntity();
+            }
 
             String token = createToken(user, exp);
 
@@ -90,11 +91,10 @@ public class TokenService implements ITokenService {
 
             LoginResponse response = new LoginResponse(token, profile, dateExpires.toString());
 
-            return new ResponseEntity<String>(JsonParser.ToJson(response), Http.GetContentType_Json(), HttpStatus.OK);
+            return Message.Ok(response);
 
         } catch (Exception e) {
-            return new ResponseEntity<String>(JsonParser.ToJson("Ups! Algo salio mal."), Http.GetContentType_Json(),
-                    HttpStatus.BAD_REQUEST);
+            return Message.ErrorException();
         }
     }
 
