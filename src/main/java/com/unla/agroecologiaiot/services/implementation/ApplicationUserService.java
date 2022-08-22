@@ -185,7 +185,6 @@ public class ApplicationUserService
 
         for (ApplicationUser user : dbUser.toList()) {
           if (!user.isDeleted) {
-            user.setPassword(null);
             applicationUserModels.add(modelMapper.map(user, ApplicationUserModel.class));
           }
         }
@@ -212,7 +211,6 @@ public class ApplicationUserService
         List<ApplicationUserModel> applicationUserModels = new ArrayList<ApplicationUserModel>();
 
         for (ApplicationUser user : dbUser) {
-          user.setPassword(null);
           applicationUserModels.add(modelMapper.map(user, ApplicationUserModel.class));
         }
 
