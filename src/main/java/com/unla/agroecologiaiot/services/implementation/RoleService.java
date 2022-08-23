@@ -2,6 +2,7 @@ package com.unla.agroecologiaiot.services.implementation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,25 +17,43 @@ import com.unla.agroecologiaiot.repositories.RoleRepository;
 import com.unla.agroecologiaiot.services.IRoleService;
 
 @Service("roleService")
-public class RoleService  implements IRoleService {
-    
+public class RoleService implements IRoleService {
+
     @Autowired
     @Qualifier("roleRepository")
     private RoleRepository roleRepository;
 
     private ModelMapper modelMapper = new ModelMapper();
 
+    @Override
+    public ResponseEntity<String> getById(long id) {
+
+        try {
+            Optional<Role> role = roleRepository.findById(id);
+
+            if (role.isPresent()) {
+                return Message.Ok(modelMapper.map(role.get(), RoleModel.class));
+            }
+            return Message.ErrorSearchEntity();
+
+        } catch (Exception ex) {
+
+            return Message.ErrorException();
+        }
+
+    }
+
     public ResponseEntity<String> put(RoleModel roleModel, long id) {
         try {
             Role role = roleRepository.getById(id);
 
-            if(role != null){
+            if (role != null) {
                 role.setName(roleModel.getName());
                 roleRepository.save(role);
 
                 return Message.Ok(role.getRoleId());
             }
-            
+
             return Message.ErrorSearchEntity();
 
         } catch (Exception e) {
@@ -46,16 +65,16 @@ public class RoleService  implements IRoleService {
         try {
             List<Role> roles = roleRepository.findAll();
 
-            if(roles.size() > 0){
+            if (roles.size() > 0) {
                 List<RoleModel> rolesModel = new ArrayList<RoleModel>();
-                
+
                 for (Role role : roles) {
                     rolesModel.add(modelMapper.map(role, RoleModel.class));
-                }          
+                }
 
                 return Message.Ok(rolesModel);
             }
-            
+
             return Message.ErrorSearchEntity();
 
         } catch (Exception e) {

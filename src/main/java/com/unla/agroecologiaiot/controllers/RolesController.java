@@ -22,6 +22,12 @@ public class RolesController {
     @Qualifier("roleService")
     private IRoleService roleService;
 
+    @GetMapping("{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<String> get(@PathVariable long id) {
+        return roleService.getById(id);
+    }
+
     @PutMapping("{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> put(@RequestBody RoleModel roleModel, @PathVariable long id) {
