@@ -18,8 +18,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -37,7 +35,6 @@ public class ApplicationUser extends AuditableEntity<Long> implements UserDetail
     private long userId;
 
     private String username;
-    @JsonIgnore
     private String password;
 
     private String name;
