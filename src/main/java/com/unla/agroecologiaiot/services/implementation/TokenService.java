@@ -72,7 +72,7 @@ public class TokenService implements ITokenService {
 
             ApplicationUser user = session.get().getUser();
 
-            if(user == null){
+            if (user == null) {
                 return Message.ErrorSearchEntity();
             }
 
@@ -94,7 +94,7 @@ public class TokenService implements ITokenService {
             return Message.Ok(response);
 
         } catch (Exception e) {
-            return Message.ErrorException();
+            return Message.ErrorException(e);
         }
     }
 

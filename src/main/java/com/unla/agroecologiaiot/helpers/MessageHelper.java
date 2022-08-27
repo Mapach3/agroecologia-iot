@@ -14,8 +14,11 @@ public class MessageHelper {
 
     public static class Message {
 
-        public static ResponseEntity<String> ErrorException() {
-            return new ResponseEntity<String>(JsonParser.toJson(E01), Http.getContentType_Json(),
+        public static ResponseEntity<String> ErrorException(Exception ex) {
+            var responseMessage = E01;
+            responseMessage += !ex.getMessage().isEmpty() ? ". Exception Message: " + ex.getLocalizedMessage() : "";
+            return new ResponseEntity<String>(JsonParser.toJson(responseMessage),
+                    Http.getContentType_Json(),
                     HttpStatus.BAD_REQUEST);
         }
 
