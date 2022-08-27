@@ -82,7 +82,7 @@ public class ApplicationUserService
       return Message.Ok(response);
 
     } catch (Exception e) {
-      return Message.ErrorException();
+      return Message.ErrorException(e);
     }
   }
 
@@ -105,7 +105,7 @@ public class ApplicationUserService
       return Message.Ok(response);
 
     } catch (Exception e) {
-      return Message.ErrorException();
+      return Message.ErrorException(e);
     }
   }
 
@@ -123,7 +123,7 @@ public class ApplicationUserService
       return Message.Ok(true);
 
     } catch (Exception e) {
-      return Message.ErrorException();
+      return Message.ErrorException(e);
     }
   }
 
@@ -139,7 +139,7 @@ public class ApplicationUserService
       return Message.ErrorSearchEntity();
 
     } catch (Exception e) {
-      return Message.ErrorException();
+      return Message.ErrorException(e);
     }
   }
 
@@ -155,7 +155,7 @@ public class ApplicationUserService
       return Message.ErrorSearchEntity();
 
     } catch (Exception e) {
-      return Message.ErrorException();
+      return Message.ErrorException(e);
     }
   }
 
@@ -180,27 +180,23 @@ public class ApplicationUserService
       // Page<ApplicationUser> dbUser =
       // applicationUserRepository.findByUsernameContaining(pageParameters.getSearch(),page);//.filter();
 
-      if (dbUser.toList().size() > 0) {
-        List<ApplicationUserModel> applicationUserModels = new ArrayList<ApplicationUserModel>();
+      List<ApplicationUserModel> applicationUserModels = new ArrayList<ApplicationUserModel>();
 
-        for (ApplicationUser user : dbUser.toList()) {
-          if (!user.isDeleted) {
-            user.setPassword(null);
-            applicationUserModels.add(modelMapper.map(user, ApplicationUserModel.class));
-          }
+      for (ApplicationUser user : dbUser.toList()) {
+        if (!user.isDeleted) {
+          user.setPassword(null);
+          applicationUserModels.add(modelMapper.map(user, ApplicationUserModel.class));
         }
-
-        paginatedList.setList(applicationUserModels);
-        paginatedList.setCount(dbUser.getTotalElements());
-        paginatedList.setIndex(dbUser.getNumber());
-
-        return Message.Ok(paginatedList);
       }
 
-      return Message.ErrorSearchEntity();
+      paginatedList.setList(applicationUserModels);
+      paginatedList.setCount(dbUser.getTotalElements());
+      paginatedList.setIndex(dbUser.getNumber());
+
+      return Message.Ok(paginatedList);
 
     } catch (Exception e) {
-      return Message.ErrorException();
+      return Message.ErrorException(e);
     }
   }
 
@@ -221,7 +217,7 @@ public class ApplicationUserService
       return Message.ErrorSearchEntity();
 
     } catch (Exception e) {
-      return Message.ErrorException();
+      return Message.ErrorException(e);
     }
   }
 
@@ -238,7 +234,7 @@ public class ApplicationUserService
       return Message.ErrorSearchEntity();
 
     } catch (Exception e) {
-      return Message.ErrorException();
+      return Message.ErrorException(e);
     }
   }
 

@@ -36,9 +36,9 @@ public class RoleService implements IRoleService {
             }
             return Message.ErrorSearchEntity();
 
-        } catch (Exception ex) {
+        } catch (Exception e) {
 
-            return Message.ErrorException();
+            return Message.ErrorException(e);
         }
 
     }
@@ -57,7 +57,7 @@ public class RoleService implements IRoleService {
             return Message.ErrorSearchEntity();
 
         } catch (Exception e) {
-            return Message.ErrorException();
+            return Message.ErrorException(e);
         }
     }
 
@@ -65,20 +65,14 @@ public class RoleService implements IRoleService {
         try {
             List<Role> roles = roleRepository.findAll();
 
-            if (roles.size() > 0) {
-                List<RoleModel> rolesModel = new ArrayList<RoleModel>();
-
-                for (Role role : roles) {
-                    rolesModel.add(modelMapper.map(role, RoleModel.class));
-                }
-
-                return Message.Ok(rolesModel);
+            List<RoleModel> rolesModel = new ArrayList<RoleModel>();
+            for (Role role : roles) {
+                rolesModel.add(modelMapper.map(role, RoleModel.class));
             }
-
-            return Message.ErrorSearchEntity();
+            return Message.Ok(rolesModel);
 
         } catch (Exception e) {
-            return Message.ErrorException();
+            return Message.ErrorException(e);
         }
     }
 }
