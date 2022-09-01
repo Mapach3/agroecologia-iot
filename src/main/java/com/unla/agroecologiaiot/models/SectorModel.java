@@ -8,12 +8,10 @@ import lombok.ToString;
 @Setter
 @ToString
 public class SectorModel {
-    
     private long sectorId;
 
     private String name;
     private String centralizerKey;
 
     private long gardenId;
-    
 }
