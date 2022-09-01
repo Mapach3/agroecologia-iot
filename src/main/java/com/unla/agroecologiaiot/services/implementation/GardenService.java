@@ -166,7 +166,7 @@ public class GardenService implements IGardenService {
 
     @Override
     public ResponseEntity<String> getList(PagerParametersModel pageParametersModel) {
-        try {
+        try { //TODO: FALTA: obtencion de todas las huertas cuando es garden_manager o sino por id de usuario si es admin
             PagerParameters pageParameters = modelMapper.map(pageParametersModel, PagerParameters.class);
 
             if (pageParameters.getPageSize() == 0) {
@@ -192,13 +192,14 @@ public class GardenService implements IGardenService {
                     
                     List<Sector> sectorsList = new ArrayList<>(garden.getSectors());
                     gardenModel.setSectorModel(MappingHelper.mapList(sectorsList, SectorModel.class));
-                    
+                    //TODO: VER TEMA DE PAGINADO YA QUE LOS SECTORES NO LOS PAGINARIA ACTUALMENTE
+
                     gardenModels.add(gardenModel);
                 }
             }
 
             paginatedList.setList(gardenModels);
-            paginatedList.setCount(dbGarden.getTotalElements());
+            paginatedList.setCount(dbGarden.getTotalElements()); //TODO: VER TEMA DE ELEMENTOS PORQUE NO CONTABILIZA BIEN POR LOS IS DELETED
             paginatedList.setIndex(dbGarden.getNumber());
 
             return Message.Ok(paginatedList);
