@@ -2,6 +2,7 @@ package com.unla.agroecologiaiot.entities;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -12,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -46,6 +48,9 @@ public class ApplicationUser extends AuditableEntity<Long> implements UserDetail
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "roleId", nullable = false, foreignKey = @ForeignKey(name = "FK_User_Role"))
     private Role role;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
+    private Set<Garden> garden;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
