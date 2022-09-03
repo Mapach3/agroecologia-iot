@@ -14,4 +14,6 @@ public class SectorModel {
     private String centralizerKey;
 
     private long gardenId;
+
+    //TODO: AGREGAR LISTADO DE ID DE LOS CROPS
 }

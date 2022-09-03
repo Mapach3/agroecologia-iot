@@ -1,13 +1,9 @@
 package com.unla.agroecologiaiot.controllers;
 
-import java.util.Map;
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 import com.unla.agroecologiaiot.shared.paginated.PagerParametersModel;
-
+import com.unla.agroecologiaiot.helpers.SecurityContextHelper.SecurityContext;
 import com.unla.agroecologiaiot.models.GardenModel;
 import com.unla.agroecologiaiot.services.IGardenService;
 
@@ -31,11 +27,8 @@ public class GardenController {
 
     @PostMapping("")
     @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
-    @SuppressWarnings("unchecked")
     public ResponseEntity<String> post(@RequestBody GardenModel model) {
-        var principal = ((Map<String, String>) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        Optional<Long> userId = Optional.of(Long.parseLong(principal.get("sub")));
-        return gardenService.saveOrUpdate(model, userId.get());
+        return gardenService.saveOrUpdate(model, SecurityContext.getUserIdContext().get());
     }
 
     @PutMapping("{id}")
@@ -59,7 +52,10 @@ public class GardenController {
     @GetMapping("")
     @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
     public ResponseEntity<String> getList(PagerParametersModel pageParameters) {
-        return gardenService.getList(pageParameters);
+        boolean isAdmin = SecurityContext.getRoleContext().getCode() == "ADMIN"
+                ? true
+                : false;
+        return gardenService.getList(pageParameters, isAdmin, SecurityContext.getUserIdContext().get());
     }
 
 }

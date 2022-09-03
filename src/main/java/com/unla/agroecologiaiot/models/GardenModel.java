@@ -19,5 +19,5 @@ public class GardenModel {
 
     private long ownerId;
 
-    private List<SectorModel> sectorModel;
+    private List<SectorModel> sectors; 
 }

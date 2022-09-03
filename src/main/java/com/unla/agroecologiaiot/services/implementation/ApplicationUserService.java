@@ -8,6 +8,7 @@ import java.util.List;
 import com.unla.agroecologiaiot.entities.ApplicationUser;
 import com.unla.agroecologiaiot.entities.Role;
 import com.unla.agroecologiaiot.entities.Session;
+import com.unla.agroecologiaiot.helpers.FilterHelper.Filter;
 import com.unla.agroecologiaiot.helpers.MessageHelper.Message;
 import com.unla.agroecologiaiot.helpers.PageHelper.Paged;
 import com.unla.agroecologiaiot.models.ApplicationUserModel;
@@ -19,6 +20,8 @@ import com.unla.agroecologiaiot.shared.paginated.PagerParameters;
 import com.unla.agroecologiaiot.shared.paginated.PagerParametersModel;
 import com.unla.agroecologiaiot.shared.paginated.PaginatedList;
 import com.unla.agroecologiaiot.shared.paginated.SearchEspecification;
+import com.unla.agroecologiaiot.shared.paginated.especification.FieldType;
+import com.unla.agroecologiaiot.shared.paginated.especification.FilterRequest;
 
 import java.util.Optional;
 
@@ -41,7 +44,6 @@ public class ApplicationUserService
 
   private ModelMapper modelMapper = new ModelMapper();
   private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-  // private EntityManager entitymanager;
 
   @Autowired
   @Qualifier("applicationUserRepository")
@@ -174,19 +176,17 @@ public class ApplicationUserService
       }
 
       PaginatedList<ApplicationUserModel> paginatedList = new PaginatedList<>();
+      List<FilterRequest> filters = new ArrayList<FilterRequest>();
+      filters.add(Filter.AddFilterPropertyEqual("isDeleted", true, FieldType.BOOLEAN));
+      pageParameters.setFilters(filters);
       SearchEspecification<ApplicationUser> especification = new SearchEspecification<>(pageParameters);
       Page<ApplicationUser> dbUser = applicationUserRepository.findAll(especification, page);
-
-      // Page<ApplicationUser> dbUser =
-      // applicationUserRepository.findByUsernameContaining(pageParameters.getSearch(),page);//.filter();
 
       List<ApplicationUserModel> applicationUserModels = new ArrayList<ApplicationUserModel>();
 
       for (ApplicationUser user : dbUser.toList()) {
-        if (!user.isDeleted) {
           user.setPassword(null);
           applicationUserModels.add(modelMapper.map(user, ApplicationUserModel.class));
-        }
       }
 
       paginatedList.setList(applicationUserModels);

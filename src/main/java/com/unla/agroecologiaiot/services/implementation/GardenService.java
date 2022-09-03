@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.unla.agroecologiaiot.entities.ApplicationUser;
 import com.unla.agroecologiaiot.entities.Garden;
 import com.unla.agroecologiaiot.entities.Sector;
+import com.unla.agroecologiaiot.helpers.FilterHelper.Filter;
 import com.unla.agroecologiaiot.helpers.MessageHelper.Message;
 import com.unla.agroecologiaiot.models.GardenModel;
 import com.unla.agroecologiaiot.models.SectorModel;
@@ -25,6 +26,8 @@ import com.unla.agroecologiaiot.shared.paginated.PagerParameters;
 import com.unla.agroecologiaiot.shared.paginated.PagerParametersModel;
 import com.unla.agroecologiaiot.shared.paginated.PaginatedList;
 import com.unla.agroecologiaiot.shared.paginated.SearchEspecification;
+import com.unla.agroecologiaiot.shared.paginated.especification.FieldType;
+import com.unla.agroecologiaiot.shared.paginated.especification.FilterRequest;
 import com.unla.agroecologiaiot.helpers.ModelMapperHelper.MappingHelper;
 import com.unla.agroecologiaiot.helpers.PageHelper.Paged;
 
@@ -70,7 +73,7 @@ public class GardenService implements IGardenService {
 
             Garden gardenInserted = gardenRepository.getById(response);
 
-            List<Sector> sectors = MappingHelper.mapList(model.getSectorModel(), Sector.class);
+            List<Sector> sectors = MappingHelper.mapList(model.getSectors(), Sector.class);
             for (Sector sector : sectors) {
                 sector.setGarden(gardenInserted);
             }
@@ -98,7 +101,7 @@ public class GardenService implements IGardenService {
             garden.setName(model.getName());
             garden.setLocation(model.getLocation());
 
-            for (SectorModel sectorModel : model.getSectorModel()) {
+            for (SectorModel sectorModel : model.getSectors()) {
                 for (Sector sector : sectors) {
                     if (sectorModel.getSectorId() == sector.getSectorId()) {
                         sector.setName(sectorModel.getName());
@@ -153,7 +156,7 @@ public class GardenService implements IGardenService {
                 GardenModel gardenModel = modelMapper.map(garden, GardenModel.class);
 
                 List<Sector> sectorsList = new ArrayList<>(garden.get().getSectors());
-                gardenModel.setSectorModel(MappingHelper.mapList(sectorsList, SectorModel.class));
+                gardenModel.setSectors(MappingHelper.mapList(sectorsList, SectorModel.class));
                 return Message.Ok(gardenModel);
             }
 
@@ -165,8 +168,8 @@ public class GardenService implements IGardenService {
     }
 
     @Override
-    public ResponseEntity<String> getList(PagerParametersModel pageParametersModel) {
-        try { //TODO: FALTA: obtencion de todas las huertas cuando es garden_manager o sino por id de usuario si es admin
+    public ResponseEntity<String> getList(PagerParametersModel pageParametersModel, boolean isAdmin, long idUser) {
+        try {
             PagerParameters pageParameters = modelMapper.map(pageParametersModel, PagerParameters.class);
 
             if (pageParameters.getPageSize() == 0) {
@@ -180,26 +183,30 @@ public class GardenService implements IGardenService {
             }
 
             PaginatedList<GardenModel> paginatedList = new PaginatedList<>();
+            List<FilterRequest> filters = new ArrayList<FilterRequest>();
+            filters.add(Filter.AddFilterPropertyEqual("isDeleted", true, FieldType.BOOLEAN));
+
+            if (!isAdmin) {           
+                filters.add(Filter.AddFilterPropertyEqual("owner", idUser, FieldType.LONG));
+            }
+
+            pageParameters.setFilters(filters);
             SearchEspecification<Garden> especification = new SearchEspecification<>(pageParameters);
             Page<Garden> dbGarden = gardenRepository.findAll(especification, page);
-
 
             List<GardenModel> gardenModels = new ArrayList<GardenModel>();
 
             for (Garden garden : dbGarden.toList()) {
-                if (!garden.isDeleted) {
-                    GardenModel gardenModel = modelMapper.map(garden, GardenModel.class);
-                    
-                    List<Sector> sectorsList = new ArrayList<>(garden.getSectors());
-                    gardenModel.setSectorModel(MappingHelper.mapList(sectorsList, SectorModel.class));
-                    //TODO: VER TEMA DE PAGINADO YA QUE LOS SECTORES NO LOS PAGINARIA ACTUALMENTE
+                GardenModel gardenModel = modelMapper.map(garden, GardenModel.class);
 
-                    gardenModels.add(gardenModel);
-                }
+                List<Sector> sectorsList = new ArrayList<>(garden.getSectors());
+                gardenModel.setSectors(MappingHelper.mapList(sectorsList, SectorModel.class));
+
+                gardenModels.add(gardenModel);
             }
 
             paginatedList.setList(gardenModels);
-            paginatedList.setCount(dbGarden.getTotalElements()); //TODO: VER TEMA DE ELEMENTOS PORQUE NO CONTABILIZA BIEN POR LOS IS DELETED
+            paginatedList.setCount(dbGarden.getTotalElements());                                                       
             paginatedList.setIndex(dbGarden.getNumber());
 
             return Message.Ok(paginatedList);
