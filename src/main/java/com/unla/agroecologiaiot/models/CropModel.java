@@ -12,4 +12,5 @@ public class CropModel {
     private long cropId;
 
     private String name;
+    private long ownerId;
 }

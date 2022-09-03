@@ -184,7 +184,7 @@ public class GardenService implements IGardenService {
 
             PaginatedList<GardenModel> paginatedList = new PaginatedList<>();
             List<FilterRequest> filters = new ArrayList<FilterRequest>();
-            filters.add(Filter.AddFilterPropertyEqual("isDeleted", true, FieldType.BOOLEAN));
+            filters.add(Filter.AddFilterPropertyEqual("isDeleted", false, FieldType.BOOLEAN));
 
             if (!isAdmin) {           
                 filters.add(Filter.AddFilterPropertyEqual("owner", idUser, FieldType.LONG));

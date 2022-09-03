@@ -52,6 +52,9 @@ public class ApplicationUser extends AuditableEntity<Long> implements UserDetail
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
     private Set<Garden> garden;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
+    private Set<Crop> crop;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         var authorities = new HashSet<Role>();
