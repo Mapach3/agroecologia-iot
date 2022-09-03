@@ -1,5 +1,7 @@
 package com.unla.agroecologiaiot.models;
 
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,5 +17,5 @@ public class SectorModel {
 
     private long gardenId;
 
-    //TODO: AGREGAR LISTADO DE ID DE LOS CROPS
+    private List<CropModel> sectorCrops;
 }

@@ -76,6 +76,7 @@ public class GardenService implements IGardenService {
             List<Sector> sectors = MappingHelper.mapList(model.getSectors(), Sector.class);
             for (Sector sector : sectors) {
                 sector.setGarden(gardenInserted);
+                sector.setSectorCrops(sector.getSectorCrops());
             }
 
             sectorRepository.saveAll(sectors);
