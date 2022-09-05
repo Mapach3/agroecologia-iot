@@ -1,5 +1,6 @@
 package com.unla.agroecologiaiot.models;
 
+import java.util.Date;
 import java.util.List;
 
 import lombok.Getter;
@@ -16,6 +17,7 @@ public class SectorModel {
     private String centralizerKey;
 
     private long gardenId;
+    private Date createdAt;
 
     private List<CropModel> sectorCrops;
 }
