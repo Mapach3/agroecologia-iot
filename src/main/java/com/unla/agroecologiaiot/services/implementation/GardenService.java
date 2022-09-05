@@ -16,7 +16,6 @@ import com.unla.agroecologiaiot.entities.Garden;
 import com.unla.agroecologiaiot.entities.Sector;
 import com.unla.agroecologiaiot.helpers.FilterHelper.Filter;
 import com.unla.agroecologiaiot.helpers.MessageHelper.Message;
-import com.unla.agroecologiaiot.models.CropModel;
 import com.unla.agroecologiaiot.models.GardenModel;
 import com.unla.agroecologiaiot.models.SectorModel;
 import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
@@ -99,11 +98,12 @@ public class GardenService implements IGardenService {
     public ResponseEntity<String> put(GardenModel model, long id) {
         try {
             Garden garden = gardenRepository.getById(id);
-
+          
             if (garden == null) {
                 return Message.ErrorSearchEntity();
             }
 
+            garden.setSectors(null);
             garden.setDescription(model.getDescription());
             garden.setName(model.getName());
             garden.setLocation(model.getLocation());
