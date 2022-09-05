@@ -135,11 +135,10 @@ public class GardenService implements IGardenService {
 
             for (Sector sector : sectors) {
                 sector.setDeleted(true);
+                sector.setSectorCrops(null);
             }
 
             sectorRepository.saveAll(sectors);
-
-            // TODO: AGREGAR BORRADO FISICO DE CROPS ASOCIADOS A LOS SECTORES
 
             return Message.Ok(true);
 
