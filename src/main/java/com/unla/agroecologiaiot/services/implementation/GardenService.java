@@ -106,6 +106,9 @@ public class GardenService implements IGardenService {
                 for (Sector sector : sectors) {
                     if (sectorModel.getSectorId() == sector.getSectorId()) {
                         sector.setName(sectorModel.getName());
+                    }else{
+                        Sector sectorMap = modelMapper.map(sectorModel, Sector.class);
+                        sectors.add(sectorMap);
                     }
                 }
             }
