@@ -16,9 +16,11 @@ import com.unla.agroecologiaiot.entities.Garden;
 import com.unla.agroecologiaiot.entities.Sector;
 import com.unla.agroecologiaiot.helpers.FilterHelper.Filter;
 import com.unla.agroecologiaiot.helpers.MessageHelper.Message;
+import com.unla.agroecologiaiot.models.CropModel;
 import com.unla.agroecologiaiot.models.GardenModel;
 import com.unla.agroecologiaiot.models.SectorModel;
 import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
+import com.unla.agroecologiaiot.repositories.CropRepository;
 import com.unla.agroecologiaiot.repositories.GardenRepository;
 import com.unla.agroecologiaiot.repositories.SectorRepository;
 import com.unla.agroecologiaiot.services.IGardenService;
@@ -50,6 +52,10 @@ public class GardenService implements IGardenService {
     @Qualifier("sectorRepository")
     private SectorRepository sectorRepository;
 
+    @Autowired
+    @Qualifier("cropRepository")
+    private CropRepository cropRepository;
+
     @Override
     public ResponseEntity<String> saveOrUpdate(GardenModel model, long idOwner) {
         try {
@@ -76,7 +82,8 @@ public class GardenService implements IGardenService {
             List<Sector> sectors = MappingHelper.mapList(model.getSectors(), Sector.class);
             for (Sector sector : sectors) {
                 sector.setGarden(gardenInserted);
-                sector.setSectorCrops(sector.getSectorCrops());
+                var crops = cropRepository.findAllById(sector.getCropIds());
+                sector.setSectorCrops(Set.copyOf(crops));
             }
 
             sectorRepository.saveAll(sectors);
@@ -92,29 +99,24 @@ public class GardenService implements IGardenService {
     public ResponseEntity<String> put(GardenModel model, long id) {
         try {
             Garden garden = gardenRepository.getById(id);
-            Set<Sector> sectors = garden.getSectors();
 
-            if (garden == null || sectors == null) {
+            if (garden == null) {
                 return Message.ErrorSearchEntity();
             }
 
             garden.setDescription(model.getDescription());
             garden.setName(model.getName());
             garden.setLocation(model.getLocation());
-
-            for (SectorModel sectorModel : model.getSectors()) {
-                for (Sector sector : sectors) {
-                    if (sectorModel.getSectorId() == sector.getSectorId()) {
-                        sector.setName(sectorModel.getName());
-                    }else{
-                        Sector sectorMap = modelMapper.map(sectorModel, Sector.class);
-                        sectors.add(sectorMap);
-                    }
-                }
-            }
-            garden.setSectors(sectors);
-
             long response = gardenRepository.save(garden).getGardenId();
+
+            List<Sector> sectors = MappingHelper.mapList(model.getSectors(), Sector.class);
+            for (Sector sector : sectors) {
+                sector.setGarden(garden);
+                var crops = cropRepository.findAllById(sector.getCropIds());
+                sector.setSectorCrops(Set.copyOf(crops));
+            }
+
+            sectorRepository.saveAll(sectors);
 
             return Message.Ok(response);
 
@@ -189,7 +191,7 @@ public class GardenService implements IGardenService {
             List<FilterRequest> filters = new ArrayList<FilterRequest>();
             filters.add(Filter.AddFilterPropertyEqual("isDeleted", false, FieldType.BOOLEAN));
 
-            if (!isAdmin) {           
+            if (!isAdmin) {
                 filters.add(Filter.AddFilterPropertyEqual("owner", idUser, FieldType.LONG));
             }
 
@@ -209,7 +211,7 @@ public class GardenService implements IGardenService {
             }
 
             paginatedList.setList(gardenModels);
-            paginatedList.setCount(dbGarden.getTotalElements());                                                       
+            paginatedList.setCount(dbGarden.getTotalElements());
             paginatedList.setIndex(dbGarden.getNumber());
 
             return Message.Ok(paginatedList);

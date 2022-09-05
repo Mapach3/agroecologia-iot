@@ -1,5 +1,6 @@
 package com.unla.agroecologiaiot.entities;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Entity;
@@ -14,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -46,6 +48,9 @@ public class Sector extends AuditableEntity<Long>{
     joinColumns = @JoinColumn(name = "sectorId"), 
     inverseJoinColumns = @JoinColumn(name = "cropId"))
     private Set<Crop> sectorCrops;
+
+    @Transient
+    private List<Long> cropIds;
 
 
     // private Set<MetricReading> metricReadings;
