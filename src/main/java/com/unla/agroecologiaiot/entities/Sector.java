@@ -44,7 +44,7 @@ public class Sector extends AuditableEntity<Long>{
 
     @ManyToMany
     @JoinTable(
-    name = "gardencrop", 
+    name = "sectorcrop", 
     joinColumns = @JoinColumn(name = "sectorId"), 
     inverseJoinColumns = @JoinColumn(name = "cropId"))
     private Set<Crop> sectorCrops;
