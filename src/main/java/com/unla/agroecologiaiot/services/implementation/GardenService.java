@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -162,6 +164,13 @@ public class GardenService implements IGardenService {
 
                 List<Sector> sectorsList = new ArrayList<>(garden.get().getSectors());
                 gardenModel.setSectors(MappingHelper.mapList(sectorsList, SectorModel.class));
+
+                for (SectorModel sectorModel : gardenModel.getSectors()) {           
+                    sectorModel.setCropIds(sectorModel.getSectorCrops().stream()
+                    .flatMap(x -> Stream.of(x.getCropId()))
+                    .collect(Collectors.toList()));
+                }
+
                 return Message.Ok(gardenModel);
             }
 
@@ -206,9 +215,17 @@ public class GardenService implements IGardenService {
 
                 List<Sector> sectorsList = new ArrayList<>(garden.getSectors());
                 gardenModel.setSectors(MappingHelper.mapList(sectorsList, SectorModel.class));
-
+                
+                for (SectorModel sectorModel : gardenModel.getSectors()) {           
+                    sectorModel.setCropIds(sectorModel.getSectorCrops().stream()
+                    .flatMap(x -> Stream.of(x.getCropId()))
+                    .collect(Collectors.toList()));
+                }
+                
                 gardenModels.add(gardenModel);
             }
+
+            
 
             paginatedList.setList(gardenModels);
             paginatedList.setCount(dbGarden.getTotalElements());
