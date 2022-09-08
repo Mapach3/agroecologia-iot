@@ -3,6 +3,8 @@ package com.unla.agroecologiaiot.models;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,8 +25,10 @@ public class SectorModel {
     private String centralizerKey;
 
     private long gardenId;
+    @JsonIgnore
     private Date createdAt;
     private List<Long> cropIds;
 
+    @JsonIgnore
     private List<CropModel> sectorCrops;
 }
