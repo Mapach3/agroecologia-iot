@@ -161,7 +161,7 @@ public class ApplicationUserService
     }
   }
 
-  public ResponseEntity<String> getList(PagerParametersModel pageParametersModel) {
+  public ResponseEntity<String> getList(PagerParametersModel pageParametersModel, Optional<Long> userId) {
     try {
       PagerParameters pageParameters = modelMapper.map(pageParametersModel, PagerParameters.class);
 
@@ -177,16 +177,21 @@ public class ApplicationUserService
 
       PaginatedList<ApplicationUserModel> paginatedList = new PaginatedList<>();
       List<FilterRequest> filters = new ArrayList<FilterRequest>();
-      filters.add(Filter.AddFilterPropertyEqual("isDeleted", true, FieldType.BOOLEAN));
+
+      filters.add(Filter.AddFilterPropertyEqual("isDeleted", false, FieldType.BOOLEAN));
+      if (!userId.get().equals(null)) {
+        filters.add(Filter.AddFilterPropertyNotEqual("userId", userId.get(), FieldType.LONG));
+      }
       pageParameters.setFilters(filters);
+
       SearchEspecification<ApplicationUser> especification = new SearchEspecification<>(pageParameters);
       Page<ApplicationUser> dbUser = applicationUserRepository.findAll(especification, page);
 
       List<ApplicationUserModel> applicationUserModels = new ArrayList<ApplicationUserModel>();
 
       for (ApplicationUser user : dbUser.toList()) {
-          user.setPassword(null);
-          applicationUserModels.add(modelMapper.map(user, ApplicationUserModel.class));
+        user.setPassword(null);
+        applicationUserModels.add(modelMapper.map(user, ApplicationUserModel.class));
       }
 
       paginatedList.setList(applicationUserModels);

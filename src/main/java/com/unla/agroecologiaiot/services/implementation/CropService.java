@@ -3,6 +3,8 @@ package com.unla.agroecologiaiot.services.implementation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +16,14 @@ import org.springframework.stereotype.Service;
 
 import com.unla.agroecologiaiot.entities.ApplicationUser;
 import com.unla.agroecologiaiot.entities.Crop;
+import com.unla.agroecologiaiot.entities.Sector;
 import com.unla.agroecologiaiot.helpers.FilterHelper.Filter;
 import com.unla.agroecologiaiot.helpers.MessageHelper.Message;
 import com.unla.agroecologiaiot.helpers.PageHelper.Paged;
 import com.unla.agroecologiaiot.models.CropModel;
 import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
 import com.unla.agroecologiaiot.repositories.CropRepository;
+import com.unla.agroecologiaiot.repositories.SectorRepository;
 import com.unla.agroecologiaiot.services.ICropService;
 import com.unla.agroecologiaiot.shared.paginated.PagerParametersModel;
 import com.unla.agroecologiaiot.shared.paginated.PaginatedList;
@@ -35,6 +39,10 @@ public class CropService implements ICropService {
     @Autowired
     @Qualifier("cropRepository")
     private CropRepository cropRepository;
+
+    @Autowired
+    @Qualifier("sectorRepository")
+    private SectorRepository sectorRepository;
 
     @Autowired
     @Qualifier("applicationUserRepository")
@@ -91,13 +99,20 @@ public class CropService implements ICropService {
     @Override
     public ResponseEntity<String> delete(long id) {
         try {
-            Crop crop = cropRepository.getById(id);
+            Crop crop = cropRepository.findByIdAndFetchSectorsEagerly(id);
 
             if (crop == null) {
                 return Message.ErrorSearchEntity();
             }
 
             crop.setDeleted(true);
+
+            for (Sector sector : crop.getSectors()) {
+                sector.setCrops(
+                        sector.getCrops().stream().filter(sectorCrop -> sectorCrop.getCropId() != crop.getCropId())
+                                .collect(Collectors.toSet()));
+            }
+
             cropRepository.save(crop);
 
             return Message.Ok(true);
@@ -114,7 +129,6 @@ public class CropService implements ICropService {
 
             if (crop.isPresent()) {
                 CropModel cropModel = modelMapper.map(crop, CropModel.class);
-
                 return Message.Ok(cropModel);
             }
 
@@ -144,7 +158,7 @@ public class CropService implements ICropService {
             List<FilterRequest> filters = new ArrayList<FilterRequest>();
             filters.add(Filter.AddFilterPropertyEqual("isDeleted", false, FieldType.BOOLEAN));
 
-            if (!isAdmin) { 
+            if (!isAdmin) {
                 filters.add(Filter.AddFilterPropertyEqual("owner", idUser, FieldType.LONG));
             }
 
@@ -160,7 +174,7 @@ public class CropService implements ICropService {
             }
 
             paginatedList.setList(cropModels);
-            paginatedList.setCount(dbCrop.getTotalElements());                                                       
+            paginatedList.setCount(dbCrop.getTotalElements());
             paginatedList.setIndex(dbCrop.getNumber());
 
             return Message.Ok(paginatedList);

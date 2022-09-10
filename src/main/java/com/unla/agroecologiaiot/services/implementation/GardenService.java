@@ -84,7 +84,7 @@ public class GardenService implements IGardenService {
             for (Sector sector : sectors) {
                 sector.setGarden(gardenInserted);
                 var crops = cropRepository.findAllById(sector.getCropIds());
-                sector.setSectorCrops(Set.copyOf(crops));
+                sector.setCrops(Set.copyOf(crops));
             }
 
             sectorRepository.saveAll(sectors);
@@ -100,7 +100,7 @@ public class GardenService implements IGardenService {
     public ResponseEntity<String> put(GardenModel model, long id) {
         try {
             Garden garden = gardenRepository.getById(id);
-          
+
             if (garden == null) {
                 return Message.ErrorSearchEntity();
             }
@@ -109,13 +109,32 @@ public class GardenService implements IGardenService {
             garden.setDescription(model.getDescription());
             garden.setName(model.getName());
             garden.setLocation(model.getLocation());
-            long response = gardenRepository.save(garden).getGardenId();
+
+            Garden insertedGarden = gardenRepository.save(garden);
+            long response = insertedGarden.getGardenId();
 
             List<Sector> sectors = MappingHelper.mapList(model.getSectors(), Sector.class);
+
             for (Sector sector : sectors) {
                 sector.setGarden(garden);
                 var crops = cropRepository.findAllById(sector.getCropIds());
-                sector.setSectorCrops(Set.copyOf(crops));
+                sector.setCrops(Set.copyOf(crops));
+            }
+
+            var currentSectors = sectorRepository.findByGarden(insertedGarden);
+
+            if (!currentSectors.isEmpty()) {
+                var idsToKeep = sectors.stream().filter(sector -> sector.getSectorId() > 0)
+                        .map(sector -> sector.getSectorId()).collect(Collectors.toList());
+
+                for (var sector : currentSectors) {
+                    if (!idsToKeep.contains(sector.getSectorId())) {
+                        sector.setDeleted(true);
+                        sector.setCrops(null);
+                    }
+                }
+
+                sectors.addAll(currentSectors);
             }
 
             sectorRepository.saveAll(sectors);
@@ -142,7 +161,7 @@ public class GardenService implements IGardenService {
 
             for (Sector sector : sectors) {
                 sector.setDeleted(true);
-                sector.setSectorCrops(null);
+                sector.setCrops(null);
             }
 
             sectorRepository.saveAll(sectors);
@@ -162,13 +181,14 @@ public class GardenService implements IGardenService {
             if (garden.isPresent()) {
                 GardenModel gardenModel = modelMapper.map(garden, GardenModel.class);
 
-                List<Sector> sectorsList = new ArrayList<>(garden.get().getSectors());
+                List<Sector> sectorsList = new ArrayList<>(garden.get().getSectors()).stream()
+                        .filter(sector -> !sector.isDeleted()).collect(Collectors.toList());
                 gardenModel.setSectors(MappingHelper.mapList(sectorsList, SectorModel.class));
 
-                for (SectorModel sectorModel : gardenModel.getSectors()) {           
+                for (SectorModel sectorModel : gardenModel.getSectors()) {
                     sectorModel.setCropIds(sectorModel.getSectorCrops().stream()
-                    .flatMap(x -> Stream.of(x.getCropId()))
-                    .collect(Collectors.toList()));
+                            .flatMap(x -> Stream.of(x.getCropId()))
+                            .collect(Collectors.toList()));
                 }
 
                 return Message.Ok(gardenModel);
@@ -215,17 +235,15 @@ public class GardenService implements IGardenService {
 
                 List<Sector> sectorsList = new ArrayList<>(garden.getSectors());
                 gardenModel.setSectors(MappingHelper.mapList(sectorsList, SectorModel.class));
-                
-                for (SectorModel sectorModel : gardenModel.getSectors()) {           
+
+                for (SectorModel sectorModel : gardenModel.getSectors()) {
                     sectorModel.setCropIds(sectorModel.getSectorCrops().stream()
-                    .flatMap(x -> Stream.of(x.getCropId()))
-                    .collect(Collectors.toList()));
+                            .flatMap(x -> Stream.of(x.getCropId()))
+                            .collect(Collectors.toList()));
                 }
-                
+
                 gardenModels.add(gardenModel);
             }
-
-            
 
             paginatedList.setList(gardenModels);
             paginatedList.setCount(dbGarden.getTotalElements());

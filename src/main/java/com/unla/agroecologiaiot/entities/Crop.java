@@ -26,16 +26,16 @@ import lombok.Setter;
 @Entity
 @Table(name = "crop")
 @EntityListeners(AuditingEntityListener.class)
-public class Crop extends AuditableEntity<Long>{
-    
+public class Crop extends AuditableEntity<Long> {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long cropId;
 
     private String name;
 
-    @ManyToMany(mappedBy = "sectorCrops")
-    private Set<Sector> sector;
+    @ManyToMany(mappedBy = "crops")
+    private Set<Sector> sectors;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ownerUserId", nullable = false, foreignKey = @ForeignKey(name = "FK_Crop_User"))

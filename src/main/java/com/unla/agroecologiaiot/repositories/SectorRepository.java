@@ -10,7 +10,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 @Repository("sectorRepository")
-public interface SectorRepository extends JpaRepository<Sector, Long>{
-    
+public interface SectorRepository extends JpaRepository<Sector, Long> {
+
     public abstract List<Sector> findByGarden(Garden garden);
 }

@@ -8,9 +8,10 @@ import org.springframework.stereotype.Repository;
 import com.unla.agroecologiaiot.entities.Garden;
 
 @Repository("gardenRepository")
-public interface GardenRepository extends JpaRepository<Garden, Long>, JpaSpecificationExecutor<Garden>{
- 
+public interface GardenRepository extends JpaRepository<Garden, Long>, JpaSpecificationExecutor<Garden> {
+
     public abstract Optional<Garden> findByName(String name);
 
-    public abstract Optional<Garden> findByGardenIdAndIsDeleted(long gardenId, boolean isDeleted);
+    public abstract Optional<Garden> findByGardenIdAndIsDeleted(long gardenId,
+            boolean isDeleted);
 }

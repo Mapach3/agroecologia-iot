@@ -2,8 +2,6 @@ package com.unla.agroecologiaiot.models;
 
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -17,6 +15,5 @@ public class CropModel {
 
     private String name;
     private long ownerId;
-    @JsonIgnore
     private Date createdAt;
 }

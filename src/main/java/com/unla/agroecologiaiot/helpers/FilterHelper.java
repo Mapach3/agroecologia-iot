@@ -16,5 +16,14 @@ public class FilterHelper {
             return filter;
         }
 
+        public static FilterRequest AddFilterPropertyNotEqual(String key, Object value, FieldType fieldType) {
+            FilterRequest filter = new FilterRequest();
+            filter.setKey(key);
+            filter.setOperator(Operator.NOT_EQUAL);
+            filter.setValue(value);
+            filter.setFieldType(fieldType);
+            return filter;
+        }
+
     }
 }

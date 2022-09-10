@@ -29,8 +29,8 @@ import lombok.Setter;
 @Entity
 @Table(name = "sector")
 @EntityListeners(AuditingEntityListener.class)
-public class Sector extends AuditableEntity<Long>{
-    
+public class Sector extends AuditableEntity<Long> {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long sectorId;
@@ -43,15 +43,11 @@ public class Sector extends AuditableEntity<Long>{
     private Garden garden;
 
     @ManyToMany
-    @JoinTable(
-    name = "sectorcrop", 
-    joinColumns = @JoinColumn(name = "sectorId"), 
-    inverseJoinColumns = @JoinColumn(name = "cropId"))
-    private Set<Crop> sectorCrops;
+    @JoinTable(name = "sectorcrop", joinColumns = @JoinColumn(name = "sectorId"), inverseJoinColumns = @JoinColumn(name = "cropId"))
+    private Set<Crop> crops;
 
     @Transient
     private List<Long> cropIds;
-
 
     // private Set<MetricReading> metricReadings;
     // private HoseSystem hoseSystem;

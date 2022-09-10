@@ -1,9 +1,12 @@
 package com.unla.agroecologiaiot.controllers;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.unla.agroecologiaiot.helpers.SecurityContextHelper;
 import com.unla.agroecologiaiot.models.ApplicationUserModel;
 import com.unla.agroecologiaiot.services.IApplicationUserService;
 import com.unla.agroecologiaiot.shared.paginated.PagerParametersModel;
@@ -31,13 +35,13 @@ public class UserController {
     public ResponseEntity<String> post(@RequestBody ApplicationUserModel model) {
         return applicationUserService.saveOrUpdate(model);
     }
-    
+
     @PutMapping("{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> put(@RequestBody ApplicationUserModel model, @PathVariable long id) {
-        return applicationUserService.put(model , id);
+        return applicationUserService.put(model, id);
     }
-   
+
     @GetMapping("{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> get(@PathVariable long id) {
@@ -59,7 +63,8 @@ public class UserController {
     @GetMapping("")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> getList(PagerParametersModel pageParameters) {
-        return applicationUserService.getList(pageParameters);
+        Optional<Long> userId = SecurityContextHelper.SecurityContext.getUserIdContext();
+        return applicationUserService.getList(pageParameters, userId);
     }
 
     @GetMapping("role/{roleId}")
