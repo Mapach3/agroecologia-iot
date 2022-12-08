@@ -34,7 +34,7 @@ public class MetricAcceptationRange extends AuditableEntity<Long> {
     private long metricAcceptationRangeId;
 
     private String name;
-    
+
     @Column(precision = 2)
     private Double startValue;
 

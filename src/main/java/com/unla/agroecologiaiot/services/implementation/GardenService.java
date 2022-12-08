@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,8 +83,9 @@ public class GardenService implements IGardenService {
             List<Sector> sectors = MappingHelper.mapList(model.getSectors(), Sector.class);
             for (Sector sector : sectors) {
                 sector.setGarden(gardenInserted);
-                //TODO: REVISAR SI ES CORRECTA QUE LA INSERCION DE LAS METRICAS DE ACEPTACION DEL SECTOR SE HAGA ACA 
-                var metricAcceptationRanges = metricAcceptationRangeRepository.findAllById(sector.getMetricAcceptationRangeIds());
+
+                var metricAcceptationRanges = metricAcceptationRangeRepository
+                        .findAllById(sector.getMetricAcceptationRangeIds());
                 sector.setMetricAcceptationRanges(Set.copyOf(metricAcceptationRanges));
             }
 
@@ -117,7 +119,8 @@ public class GardenService implements IGardenService {
 
             for (Sector sector : sectors) {
                 sector.setGarden(garden);
-                var metricAcceptationRanges = metricAcceptationRangeRepository.findAllById(sector.getMetricAcceptationRangeIds());
+                var metricAcceptationRanges = metricAcceptationRangeRepository
+                        .findAllById(sector.getMetricAcceptationRangeIds());
                 sector.setMetricAcceptationRanges(Set.copyOf(metricAcceptationRanges));
             }
 
@@ -130,7 +133,6 @@ public class GardenService implements IGardenService {
                 for (var sector : currentSectors) {
                     if (!idsToKeep.contains(sector.getSectorId())) {
                         sector.setDeleted(true);
-                        sector.setCrops(null);
                     }
                 }
 
@@ -161,7 +163,7 @@ public class GardenService implements IGardenService {
 
             for (Sector sector : sectors) {
                 sector.setDeleted(true);
-                sector.setCrops(null);
+                sector.setMetricAcceptationRanges(null);
             }
 
             sectorRepository.saveAll(sectors);
@@ -185,12 +187,26 @@ public class GardenService implements IGardenService {
                         .filter(sector -> !sector.isDeleted()).collect(Collectors.toList());
                 gardenModel.setSectors(MappingHelper.mapList(sectorsList, SectorModel.class));
 
+                // Set MetricAcceptationRangeIds into Model
+                for (SectorModel sectorModel : gardenModel.getSectors()) {
+
+                    var metricAcceptationRanges = sectorsList.stream()
+                            .filter(sector -> sector.getSectorId() == sectorModel.getSectorId()).findAny().get()
+                            .getMetricAcceptationRanges();
+
+                    sectorModel.setMetricAcceptationRangeIds(metricAcceptationRanges.stream()
+                            .flatMap(x -> Stream.of(x.getMetricAcceptationRangeId()))
+                            .collect(Collectors.toList()));
+                }
+
                 return Message.Ok(gardenModel);
             }
 
             return Message.ErrorSearchEntity();
 
-        } catch (Exception e) {
+        } catch (
+
+        Exception e) {
             return Message.ErrorException(e);
         }
     }

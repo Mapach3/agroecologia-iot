@@ -19,13 +19,15 @@ import com.unla.agroecologiaiot.entities.MetricType;
 import com.unla.agroecologiaiot.entities.Sector;
 import com.unla.agroecologiaiot.helpers.FilterHelper.Filter;
 import com.unla.agroecologiaiot.helpers.MessageHelper.Message;
+import com.unla.agroecologiaiot.helpers.ModelMapperHelper.MappingHelper;
 import com.unla.agroecologiaiot.helpers.PageHelper.Paged;
 import com.unla.agroecologiaiot.models.MetricAcceptationRangeModel;
 import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
+import com.unla.agroecologiaiot.repositories.GardenRepository;
 import com.unla.agroecologiaiot.repositories.MetricAcceptationRangeRepository;
 import com.unla.agroecologiaiot.repositories.MetricTypeRepository;
 import com.unla.agroecologiaiot.repositories.SectorRepository;
-import com.unla.agroecologiaiot.services.IMetricAcceptationRange;
+import com.unla.agroecologiaiot.services.IMetricAcceptationRangeService;
 import com.unla.agroecologiaiot.shared.paginated.PagerParametersModel;
 import com.unla.agroecologiaiot.shared.paginated.PaginatedList;
 import com.unla.agroecologiaiot.shared.paginated.especification.FilterRequest;
@@ -34,7 +36,7 @@ import com.unla.agroecologiaiot.shared.paginated.especification.FieldType;
 import com.unla.agroecologiaiot.shared.paginated.PagerParameters;
 
 @Service("metricAcceptationRangeService")
-public class MetricAcceptationRangeService implements IMetricAcceptationRange {
+public class MetricAcceptationRangeService implements IMetricAcceptationRangeService {
     private ModelMapper modelMapper = new ModelMapper();
 
     @Autowired
@@ -52,6 +54,10 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRange {
     @Autowired
     @Qualifier("metricTypeRepository")
     private MetricTypeRepository metricTypeRepository;
+
+    @Autowired
+    @Qualifier("gardenRepository")
+    private GardenRepository gardenRepository;
 
     @Override
     public ResponseEntity<String> saveOrUpdate(MetricAcceptationRangeModel model, long idOwner) {
@@ -87,6 +93,35 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRange {
             long response = metricAcceptationRangeRepository.save(metricAcceptationRange).getMetricAcceptationRangeId();
 
             return Message.Ok(response);
+
+        } catch (Exception e) {
+            return Message.ErrorException(e);
+        }
+    }
+
+    @Override
+    public ResponseEntity<String> getGardenList(long userId, long gardenId, boolean isAdmin) {
+        try {
+
+            if (gardenId != 0 && !isAdmin) {
+
+                var garden = gardenRepository.findById(gardenId);
+
+                if (!garden.isPresent())
+                    return Message.ErrorSearchEntity("No se encontró la huerta");
+
+                return Message.Ok(MappingHelper.mapList(
+                        metricAcceptationRangeRepository.findByOwnerUserIdAndIsDeleted(
+                                garden.get().getOwner().getUserId(), false),
+                        MetricAcceptationRangeModel.class));
+
+            } else {
+
+                return Message
+                        .Ok(MappingHelper.mapList(metricAcceptationRangeRepository.findByOwnerUserIdAndIsDeleted(userId,
+                                false), MetricAcceptationRangeModel.class));
+
+            }
 
         } catch (Exception e) {
             return Message.ErrorException(e);
@@ -165,7 +200,7 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRange {
     }
 
     @Override
-    public ResponseEntity<String> garden(PagerParametersModel pageParametersModel, boolean isAdmin, long idUser) {
+    public ResponseEntity<String> getList(PagerParametersModel pageParametersModel, boolean isAdmin, long idUser) {
         try {
             PagerParameters pageParameters = modelMapper.map(pageParametersModel, PagerParameters.class);
 

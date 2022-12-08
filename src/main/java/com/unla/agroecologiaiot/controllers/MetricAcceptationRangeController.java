@@ -15,7 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.unla.agroecologiaiot.helpers.SecurityContextHelper.SecurityContext;
 import com.unla.agroecologiaiot.models.MetricAcceptationRangeModel;
-import com.unla.agroecologiaiot.services.IMetricAcceptationRange;
+import com.unla.agroecologiaiot.services.IMetricAcceptationRangeService;
 import com.unla.agroecologiaiot.shared.paginated.PagerParametersModel;
 
 @RestController
@@ -24,7 +24,7 @@ public class MetricAcceptationRangeController {
 
     @Autowired
     @Qualifier("metricAcceptationRangeService")
-    private IMetricAcceptationRange metricAcceptationRangeService;
+    private IMetricAcceptationRangeService metricAcceptationRangeService;
 
     @GetMapping("")
     @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
@@ -32,7 +32,17 @@ public class MetricAcceptationRangeController {
         boolean isAdmin = SecurityContext.getRoleContext().getCode().equals("ADMIN")
                 ? true
                 : false;
-        return metricAcceptationRangeService.garden(pageParameters, isAdmin, SecurityContext.getUserIdContext().get());
+        return metricAcceptationRangeService.getList(pageParameters, isAdmin, SecurityContext.getUserIdContext().get());
+    }
+
+    @GetMapping("garden")
+    @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
+    public ResponseEntity<String> getGardenList(Long gardenId) {
+        var userId = SecurityContext.getUserIdContext().get();
+        var isAdmin = SecurityContext.getRoleContext().getCode().equals("ADMIN");
+
+        return metricAcceptationRangeService.getGardenList(userId, gardenId, isAdmin);
+
     }
 
     @PostMapping("")
