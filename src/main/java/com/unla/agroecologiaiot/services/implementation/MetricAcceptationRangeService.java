@@ -103,7 +103,7 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRangeSer
     public ResponseEntity<String> getGardenList(long userId, long gardenId, boolean isAdmin) {
         try {
 
-            if (gardenId != 0 && !isAdmin) {
+            if (gardenId != 0 && isAdmin) {
 
                 var garden = gardenRepository.findById(gardenId);
 
