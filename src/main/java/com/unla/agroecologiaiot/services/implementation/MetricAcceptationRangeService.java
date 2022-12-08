@@ -163,8 +163,7 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRangeSer
 
             metricAcceptationRange.setDeleted(true);
 
-            for (Sector sector : metricAcceptationRange.getSectors()) { // TODO: VALIDAR CON GUIDO Y ENTENDER QUE HACE
-                                                                        // EXACTAMENTE
+            for (Sector sector : metricAcceptationRange.getSectors()) { 
                 sector.setMetricAcceptationRanges(
                         sector.getMetricAcceptationRanges().stream().filter(sectorMetric -> sectorMetric
                                 .getMetricAcceptationRangeId() != metricAcceptationRange.getMetricAcceptationRangeId())
