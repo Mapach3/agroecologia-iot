@@ -1,18 +1,17 @@
 package com.unla.agroecologiaiot.entities;
 
-import java.util.Set;
+import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.ForeignKey;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -24,22 +23,23 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "crop")
+@Table(name = "metricReading")
 @EntityListeners(AuditingEntityListener.class)
-public class Crop extends AuditableEntity<Long> {
+public class MetricReading {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long cropId;
+    private long metricReadingId;
 
-    private String name;
-
-    @ManyToMany(mappedBy = "crops")
-    private Set<Sector> sectors;
+    private LocalDateTime readingDate;
+    private String valueType;
+    private String value;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ownerUserId", nullable = false, foreignKey = @ForeignKey(name = "FK_Crop_User"))
-    private ApplicationUser owner;
+    @JoinColumn(name = "sectorId", nullable = false, foreignKey = @ForeignKey(name = "FK_MetricReading_Sector"))
+    private Sector sector;
 
-    // private MetricAcceptationRange metricAcceptationRange;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "metricTypeId", nullable = false, foreignKey = @ForeignKey(name = "FK_MetricReading_MetricType"))
+    private MetricType metricType;
 }

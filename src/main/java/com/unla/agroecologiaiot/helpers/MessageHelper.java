@@ -27,6 +27,11 @@ public class MessageHelper {
                     HttpStatus.BAD_REQUEST);
         }
 
+        public static ResponseEntity<String> ErrorSearchEntity(String message) {
+            return new ResponseEntity<String>(JsonParser.toJson(message), Http.getContentType_Json(),
+                    HttpStatus.BAD_REQUEST);
+        }
+
         public static ResponseEntity<String> ErrorValidation() {
             return new ResponseEntity<String>(JsonParser.toJson(E03), Http.getContentType_Json(),
                     HttpStatus.BAD_REQUEST);
