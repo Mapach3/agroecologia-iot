@@ -1,9 +1,6 @@
 package com.unla.agroecologiaiot.services;
 
-import java.util.Optional;
-
 import org.springframework.http.ResponseEntity;
-
 import com.unla.agroecologiaiot.models.MetricAcceptationRangeModel;
 import com.unla.agroecologiaiot.shared.paginated.PagerParametersModel;
 
