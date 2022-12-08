@@ -53,7 +53,7 @@ public class ApplicationUser extends AuditableEntity<Long> implements UserDetail
     private Set<Garden> garden;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
-    private Set<Crop> crop;
+    private Set<MetricAcceptationRange> metricAcceptationRanges;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

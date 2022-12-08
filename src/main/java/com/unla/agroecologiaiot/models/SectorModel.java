@@ -24,7 +24,7 @@ public class SectorModel {
 
     private long gardenId;
     private Date createdAt;
-    private List<Long> cropIds;
+    private String crops;
 
-    private List<CropModel> sectorCrops;
+    private List<Long> metricAcceptationRangeIds;
 }

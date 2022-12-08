@@ -14,49 +14,49 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.unla.agroecologiaiot.helpers.SecurityContextHelper.SecurityContext;
-import com.unla.agroecologiaiot.models.CropModel;
-import com.unla.agroecologiaiot.services.ICropService;
+import com.unla.agroecologiaiot.models.MetricAcceptationRangeModel;
+import com.unla.agroecologiaiot.services.IMetricAcceptationRange;
 import com.unla.agroecologiaiot.shared.paginated.PagerParametersModel;
 
 @RestController
-@RequestMapping("api/v1/crops")
-public class CropController {
+@RequestMapping("api/v1/metric-acceptation-ranges")
+public class MetricAcceptationRangeController {
     
     @Autowired
-    @Qualifier("cropService")
-    private ICropService cropService;
+    @Qualifier("metricAcceptationRangeService")
+    private IMetricAcceptationRange metricAcceptationRangeService;
 
     @PostMapping("")
     @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
-    public ResponseEntity<String> post(@RequestBody CropModel model) {
-        return cropService.saveOrUpdate(model, SecurityContext.getUserIdContext().get());
+    public ResponseEntity<String> post(@RequestBody MetricAcceptationRangeModel model) {
+        return metricAcceptationRangeService.saveOrUpdate(model, SecurityContext.getUserIdContext().get());
     }
 
     @PutMapping("{id}")
     @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
-    public ResponseEntity<String> put(@RequestBody CropModel model, @PathVariable long id) {
-        return cropService.put(model, id);
+    public ResponseEntity<String> put(@RequestBody MetricAcceptationRangeModel model, @PathVariable long id) {
+        return metricAcceptationRangeService.put(model, id);
     }
 
     @GetMapping("{id}")
     @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
     public ResponseEntity<String> get(@PathVariable long id) {
-        return cropService.getById(id);
+        return metricAcceptationRangeService.getById(id);
     }
 
     @DeleteMapping("{id}")
     @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
     public ResponseEntity<String> delete(@PathVariable long id) {
-        return cropService.delete(id);
+        return metricAcceptationRangeService.delete(id);
     }
 
-    @GetMapping("")
+    @GetMapping("/garden")
     @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
-    public ResponseEntity<String> getList(PagerParametersModel pageParameters) {
+    public ResponseEntity<String> garden(PagerParametersModel pageParameters) {
         boolean isAdmin = SecurityContext.getRoleContext().getCode().equals("ADMIN")
                 ? true
                 : false;
-        return cropService.getList(pageParameters, isAdmin, SecurityContext.getUserIdContext().get());
+        return metricAcceptationRangeService.garden(pageParameters, isAdmin, SecurityContext.getUserIdContext().get());
     }
 
 }

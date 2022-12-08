@@ -2,6 +2,7 @@ package com.unla.agroecologiaiot.entities;
 
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
@@ -24,22 +25,30 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "crop")
+@Table(name = "metricAcceptationRange")
 @EntityListeners(AuditingEntityListener.class)
-public class Crop extends AuditableEntity<Long> {
+public class MetricAcceptationRange extends AuditableEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long cropId;
+    private long metricAcceptationRangeId;
 
     private String name;
+    
+    @Column(precision = 2)
+    private Double startValue;
 
-    @ManyToMany(mappedBy = "crops")
+    @Column(precision = 2)
+    private Double endValue;
+
+    @ManyToMany(mappedBy = "metricAcceptationRanges")
     private Set<Sector> sectors;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ownerUserId", nullable = false, foreignKey = @ForeignKey(name = "FK_Crop_User"))
+    @JoinColumn(name = "ownerUserId", nullable = false, foreignKey = @ForeignKey(name = "FK_MetricAcceptationRange_User"))
     private ApplicationUser owner;
 
-    // private MetricAcceptationRange metricAcceptationRange;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "metricTypeId", nullable = false, foreignKey = @ForeignKey(name = "FK_MetricAcceptationRange_MetricType"))
+    private MetricType metricType;
 }
