@@ -22,20 +22,20 @@ public class MetricTypeController {
     @Qualifier("metricTypeService")
     private IMetricTypeService metricTypeService;
 
-    @GetMapping("{id}")
+    @GetMapping("{code}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<String> get(@PathVariable long id) {
-        return metricTypeService.getById(id);
+    public ResponseEntity<String> get(@PathVariable String code) {
+        return metricTypeService.getByCode(code);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("{code}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<String> put(@RequestBody MetricTypeModel metricTypeModel, @PathVariable long id) {
-        return metricTypeService.put(metricTypeModel, id);
+    public ResponseEntity<String> put(@RequestBody MetricTypeModel metricTypeModel, @PathVariable String code) {
+        return metricTypeService.put(metricTypeModel, code);
     }
 
     @GetMapping("all")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')" + " || hasAuthority('GARDEN_MANAGER')")
     public ResponseEntity<String> getAll() {
         return metricTypeService.getAll();
     }

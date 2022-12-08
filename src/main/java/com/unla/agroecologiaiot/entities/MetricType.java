@@ -18,17 +18,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class MetricType extends AuditableEntity<Long> {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long metricTypeId;
+public class MetricType {
 
+    @Id
     private String code;
     private String description;
- 
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "metricType")
     private Set<MetricReading> metricReadings;
- 
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "metricType")
     private Set<MetricAcceptationRange> metricAcceptationRanges;
 }

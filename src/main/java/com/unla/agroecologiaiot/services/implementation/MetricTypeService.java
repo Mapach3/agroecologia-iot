@@ -17,7 +17,7 @@ import com.unla.agroecologiaiot.repositories.MetricTypeRepository;
 import com.unla.agroecologiaiot.services.IMetricTypeService;
 
 @Service("metricTypeService")
-public class MetricTypeService implements IMetricTypeService{
+public class MetricTypeService implements IMetricTypeService {
 
     @Autowired
     @Qualifier("metricTypeRepository")
@@ -26,10 +26,10 @@ public class MetricTypeService implements IMetricTypeService{
     private ModelMapper modelMapper = new ModelMapper();
 
     @Override
-    public ResponseEntity<String> getById(long id) {
+    public ResponseEntity<String> getByCode(String code) {
 
         try {
-            Optional<MetricType> metricType = metricTypeRepository.findById(id);
+            Optional<MetricType> metricType = metricTypeRepository.findById(code);
 
             if (metricType.isPresent()) {
                 return Message.Ok(modelMapper.map(metricType.get(), MetricTypeModel.class));
@@ -43,15 +43,15 @@ public class MetricTypeService implements IMetricTypeService{
 
     }
 
-    public ResponseEntity<String> put(MetricTypeModel metricTypeModel, long id) {
+    public ResponseEntity<String> put(MetricTypeModel metricTypeModel, String code) {
         try {
-            MetricType metricType = metricTypeRepository.getById(id);
+            MetricType metricType = metricTypeRepository.getById(code);
 
             if (metricType != null) {
                 metricType.setDescription(metricTypeModel.getDescription());
                 metricTypeRepository.save(metricType);
 
-                return Message.Ok(metricType.getMetricTypeId());
+                return Message.Ok(metricType.getCode());
             }
 
             return Message.ErrorSearchEntity();

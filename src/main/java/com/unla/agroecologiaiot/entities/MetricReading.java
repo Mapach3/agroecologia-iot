@@ -1,4 +1,5 @@
 package com.unla.agroecologiaiot.entities;
+
 import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
@@ -24,8 +25,8 @@ import lombok.Setter;
 @Entity
 @Table(name = "metricReading")
 @EntityListeners(AuditingEntityListener.class)
-public class MetricReading extends AuditableEntity<Long> {
-    
+public class MetricReading {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long metricReadingId;

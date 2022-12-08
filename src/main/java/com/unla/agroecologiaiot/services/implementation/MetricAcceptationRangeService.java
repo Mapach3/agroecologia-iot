@@ -56,11 +56,12 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRange {
     @Override
     public ResponseEntity<String> saveOrUpdate(MetricAcceptationRangeModel model, long idOwner) {
         try {
-            if(!(model.getStartValue() > 0 && model.getEndValue() < 100)){
+            if (!(model.getStartValue() > 0 && model.getEndValue() < 100)) {
                 return Message.ErrorValidation();
             }
 
-            Optional<MetricAcceptationRange> dbMetricAcceptationRange = metricAcceptationRangeRepository.findByName(model.getName());
+            Optional<MetricAcceptationRange> dbMetricAcceptationRange = metricAcceptationRangeRepository
+                    .findByName(model.getName());
 
             if (dbMetricAcceptationRange.isPresent()) {
                 return Message.ErrorValidation();
@@ -104,6 +105,7 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRange {
             metricAcceptationRange.setName(model.getName());
             metricAcceptationRange.setStartValue(model.getStartValue());
             metricAcceptationRange.setEndValue(model.getEndValue());
+            metricAcceptationRange.setMetricType(metricTypeRepository.findByCode(model.getMetricTypeCode()));
 
             long response = metricAcceptationRangeRepository.save(metricAcceptationRange).getMetricAcceptationRangeId();
 
@@ -117,7 +119,8 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRange {
     @Override
     public ResponseEntity<String> delete(long id) {
         try {
-            MetricAcceptationRange metricAcceptationRange = metricAcceptationRangeRepository.findByIdAndFetchSectorsEagerly(id);
+            MetricAcceptationRange metricAcceptationRange = metricAcceptationRangeRepository
+                    .findByIdAndFetchSectorsEagerly(id);
 
             if (metricAcceptationRange == null) {
                 return Message.ErrorSearchEntity();
@@ -125,15 +128,15 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRange {
 
             metricAcceptationRange.setDeleted(true);
 
-            for (Sector sector : metricAcceptationRange.getSectors()) { //TODO: VALIDAR CON GUIDO Y ENTENDER QUE HACE EXACTAMENTE
+            for (Sector sector : metricAcceptationRange.getSectors()) { // TODO: VALIDAR CON GUIDO Y ENTENDER QUE HACE
+                                                                        // EXACTAMENTE
                 sector.setMetricAcceptationRanges(
-                        sector.getMetricAcceptationRanges().stream().filter(sectorMetric -> 
-                            sectorMetric.getMetricAcceptationRangeId() != metricAcceptationRange.getMetricAcceptationRangeId())
+                        sector.getMetricAcceptationRanges().stream().filter(sectorMetric -> sectorMetric
+                                .getMetricAcceptationRangeId() != metricAcceptationRange.getMetricAcceptationRangeId())
                                 .collect(Collectors.toSet()));
             }
 
             metricAcceptationRangeRepository.save(metricAcceptationRange);
-
 
             return Message.Ok(true);
 
@@ -145,10 +148,12 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRange {
     @Override
     public ResponseEntity<String> getById(long id) {
         try {
-            Optional<MetricAcceptationRange> metricAcceptationRange = metricAcceptationRangeRepository.findByMetricAcceptationRangeIdAndIsDeleted(id, false);
+            Optional<MetricAcceptationRange> metricAcceptationRange = metricAcceptationRangeRepository
+                    .findByMetricAcceptationRangeIdAndIsDeleted(id, false);
 
             if (metricAcceptationRange.isPresent()) {
-                MetricAcceptationRangeModel metricAcceptationRangeModel = modelMapper.map(metricAcceptationRange, MetricAcceptationRangeModel.class);
+                MetricAcceptationRangeModel metricAcceptationRangeModel = modelMapper.map(metricAcceptationRange,
+                        MetricAcceptationRangeModel.class);
                 return Message.Ok(metricAcceptationRangeModel);
             }
 
@@ -178,18 +183,20 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRange {
             List<FilterRequest> filters = new ArrayList<FilterRequest>();
             filters.add(Filter.AddFilterPropertyEqual("isDeleted", false, FieldType.BOOLEAN));
 
-            if (!isAdmin) { //TODO: DUDA SOBRE EL FILTRADO, CONSULTAR A GUIDO, SINO ES ARMAR ESTE FILTRO SIEMPRE Y VA A FILTRAR DEPENDIENDO DEL ROL ENTIENDO
+            if (!isAdmin) {
                 filters.add(Filter.AddFilterPropertyEqual("owner", idUser, FieldType.LONG));
             }
 
             pageParameters.setFilters(filters);
             SearchEspecification<MetricAcceptationRange> especification = new SearchEspecification<>(pageParameters);
-            Page<MetricAcceptationRange> dbMetricAcceptationRange = metricAcceptationRangeRepository.findAll(especification, page);
+            Page<MetricAcceptationRange> dbMetricAcceptationRange = metricAcceptationRangeRepository
+                    .findAll(especification, page);
 
             List<MetricAcceptationRangeModel> metricAcceptationRangeModels = new ArrayList<MetricAcceptationRangeModel>();
 
             for (MetricAcceptationRange metricAcceptationRange : dbMetricAcceptationRange.toList()) {
-                MetricAcceptationRangeModel metricAcceptationRangeModel = modelMapper.map(metricAcceptationRange, MetricAcceptationRangeModel.class);
+                MetricAcceptationRangeModel metricAcceptationRangeModel = modelMapper.map(metricAcceptationRange,
+                        MetricAcceptationRangeModel.class);
                 metricAcceptationRangeModels.add(metricAcceptationRangeModel);
             }
 

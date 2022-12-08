@@ -21,10 +21,19 @@ import com.unla.agroecologiaiot.shared.paginated.PagerParametersModel;
 @RestController
 @RequestMapping("api/v1/metric-acceptation-ranges")
 public class MetricAcceptationRangeController {
-    
+
     @Autowired
     @Qualifier("metricAcceptationRangeService")
     private IMetricAcceptationRange metricAcceptationRangeService;
+
+    @GetMapping("")
+    @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
+    public ResponseEntity<String> getList(PagerParametersModel pageParameters) {
+        boolean isAdmin = SecurityContext.getRoleContext().getCode().equals("ADMIN")
+                ? true
+                : false;
+        return metricAcceptationRangeService.garden(pageParameters, isAdmin, SecurityContext.getUserIdContext().get());
+    }
 
     @PostMapping("")
     @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
@@ -48,15 +57,6 @@ public class MetricAcceptationRangeController {
     @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
     public ResponseEntity<String> delete(@PathVariable long id) {
         return metricAcceptationRangeService.delete(id);
-    }
-
-    @GetMapping("/garden")
-    @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
-    public ResponseEntity<String> garden(PagerParametersModel pageParameters) {
-        boolean isAdmin = SecurityContext.getRoleContext().getCode().equals("ADMIN")
-                ? true
-                : false;
-        return metricAcceptationRangeService.garden(pageParameters, isAdmin, SecurityContext.getUserIdContext().get());
     }
 
 }
