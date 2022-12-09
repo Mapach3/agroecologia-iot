@@ -23,9 +23,11 @@ import com.unla.agroecologiaiot.helpers.FilterHelper.Filter;
 import com.unla.agroecologiaiot.helpers.MessageHelper.Message;
 import com.unla.agroecologiaiot.models.GardenBasicInfoModel;
 import com.unla.agroecologiaiot.models.GardenModel;
+import com.unla.agroecologiaiot.models.MetricReadingDTOModel;
 import com.unla.agroecologiaiot.models.MetricReadingModel;
 import com.unla.agroecologiaiot.models.ReadingModel;
 import com.unla.agroecologiaiot.models.SectorBasicDataModel;
+import com.unla.agroecologiaiot.models.SectorMetricDataModel;
 import com.unla.agroecologiaiot.models.SectorMetricRangeModel;
 import com.unla.agroecologiaiot.models.SectorModel;
 import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
@@ -304,6 +306,39 @@ public class GardenService implements IGardenService {
                 }
 
                 return Message.Ok(gardenBasicInfoModel);
+            }
+
+            return Message.ErrorSearchEntity();
+
+        } catch (
+
+        Exception e) {
+            return Message.ErrorException(e);
+        }
+    }
+
+    @Override
+    public ResponseEntity<String> getSectorsMetricData(long id) {
+        try {
+            Optional<Garden> garden = gardenRepository.findByGardenIdAndIsDeleted(id, false);
+
+            if (garden.isPresent()) {
+
+                List<SectorMetricDataModel> sectorMetricDataModels = new ArrayList<SectorMetricDataModel>();
+         
+                for (Sector sector : garden.get().getSectors()) {  
+                    SectorMetricDataModel sectorMetricDataModel = new SectorMetricDataModel();    
+                    List<MetricReadingDTOModel> metricReadingsDTOModel = new ArrayList<MetricReadingDTOModel>();
+
+                    sectorMetricDataModel.setName(sector.getName());
+                    sectorMetricDataModel.setSectorId(sector.getSectorId());         
+                    metricReadingsDTOModel = MappingHelper.mapList(metricReadingRepository.findBySectorAndOrderByReadingDate(sector.getSectorId()), MetricReadingDTOModel.class);
+
+                    sectorMetricDataModel.setReadings(metricReadingsDTOModel);
+                    sectorMetricDataModels.add(sectorMetricDataModel);
+                }
+
+                return Message.Ok(sectorMetricDataModels);
             }
 
             return Message.ErrorSearchEntity();

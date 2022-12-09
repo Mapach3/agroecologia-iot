@@ -69,4 +69,10 @@ public class GardenController {
     public ResponseEntity<String> getBasicInfo(@PathVariable long id) {
         return gardenService.getBasicInfo(id);
     }
+
+    @GetMapping("{id}/sectors-metric-data")
+    @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
+    public ResponseEntity<String> getSectorsMetricData(@PathVariable long id) {
+        return gardenService.getSectorsMetricData(id);
+    } 
 }
