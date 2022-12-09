@@ -6,6 +6,7 @@ import com.unla.agroecologiaiot.entities.Garden;
 import com.unla.agroecologiaiot.entities.Sector;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -13,4 +14,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface SectorRepository extends JpaRepository<Sector, Long> {
 
     public abstract List<Sector> findByGarden(Garden garden);
+
+    public abstract Optional<Sector> findByCentralizerKey(String centralizerKey);
 }

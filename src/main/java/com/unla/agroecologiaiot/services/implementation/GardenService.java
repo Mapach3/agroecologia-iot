@@ -1,5 +1,6 @@
 package com.unla.agroecologiaiot.services.implementation;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,17 +16,23 @@ import org.springframework.stereotype.Service;
 
 import com.unla.agroecologiaiot.entities.ApplicationUser;
 import com.unla.agroecologiaiot.entities.Garden;
+import com.unla.agroecologiaiot.entities.MetricReading;
+import com.unla.agroecologiaiot.entities.MetricType;
 import com.unla.agroecologiaiot.entities.Sector;
 import com.unla.agroecologiaiot.helpers.FilterHelper.Filter;
 import com.unla.agroecologiaiot.helpers.MessageHelper.Message;
 import com.unla.agroecologiaiot.models.GardenBasicInfoModel;
 import com.unla.agroecologiaiot.models.GardenModel;
+import com.unla.agroecologiaiot.models.MetricReadingModel;
+import com.unla.agroecologiaiot.models.ReadingModel;
 import com.unla.agroecologiaiot.models.SectorBasicDataModel;
 import com.unla.agroecologiaiot.models.SectorMetricRangeModel;
 import com.unla.agroecologiaiot.models.SectorModel;
 import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
 import com.unla.agroecologiaiot.repositories.GardenRepository;
 import com.unla.agroecologiaiot.repositories.MetricAcceptationRangeRepository;
+import com.unla.agroecologiaiot.repositories.MetricReadingRepository;
+import com.unla.agroecologiaiot.repositories.MetricTypeRepository;
 import com.unla.agroecologiaiot.repositories.SectorRepository;
 import com.unla.agroecologiaiot.services.IGardenService;
 import com.unla.agroecologiaiot.shared.paginated.PagerParameters;
@@ -59,6 +66,14 @@ public class GardenService implements IGardenService {
     @Autowired
     @Qualifier("metricAcceptationRangeRepository")
     private MetricAcceptationRangeRepository metricAcceptationRangeRepository;
+
+    @Autowired
+    @Qualifier("metricReadingRepository")
+    private MetricReadingRepository metricReadingRepository;
+
+    @Autowired
+    @Qualifier("metricTypeRepository")
+    private MetricTypeRepository metricTypeRepository;
 
     @Override
     public ResponseEntity<String> saveOrUpdate(GardenModel model, long idOwner) {
@@ -296,6 +311,43 @@ public class GardenService implements IGardenService {
         } catch (
 
         Exception e) {
+            return Message.ErrorException(e);
+        }
+    }
+
+    @Override
+    public ResponseEntity<String> saveMetricReading(MetricReadingModel model) {
+        try {
+            Optional<Sector> dbSector = sectorRepository.findByCentralizerKey(model.getToken());
+
+            if (!dbSector.isPresent()) {
+                return Message.ErrorSearchEntity("El sector no existe.");
+            }
+            
+            List<MetricReading> metricReadings = new ArrayList<MetricReading>();
+
+            for (ReadingModel readingModel : model.getReadings()) {
+
+                Optional<MetricType> metricType = metricTypeRepository.findById(readingModel.getType());
+
+                if(metricType.isPresent()){
+                    MetricReading metricReading = new MetricReading();
+                
+                    metricReading.setMetricType(metricType.get());
+                    metricReading.setSector(dbSector.get());
+                    metricReading.setReadingDate(LocalDateTime.now());
+                    metricReading.setValue(readingModel.getValue());
+                    metricReading.setValueType(readingModel.getType());
+
+                    metricReadings.add(metricReading);
+                }     
+            }
+           
+            metricReadingRepository.saveAll(metricReadings);
+            
+            return Message.Ok();
+
+        } catch (Exception e) {
             return Message.ErrorException(e);
         }
     }

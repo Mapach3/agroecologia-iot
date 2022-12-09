@@ -10,8 +10,9 @@ public class SecurityConstants {
     public static final String LOGIN_URL = "/api/v1/auth/login";
     public static final String REFRESH_TOKEN_URL = "/api/v1/auth/refreshtoken";
     public static final String SIGN_UP = "api/v1/users";
-
+    public static final String METRICS_READINGS = "/api/v1/gardens/metrics-readings";
     public static final String INTERNO = "/api/v1/auth/internoPost";
+
     
 
     public static final String[] SWAGGER_URL_WHITELIST = {

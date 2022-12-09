@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.unla.agroecologiaiot.shared.paginated.PagerParametersModel;
 import com.unla.agroecologiaiot.helpers.SecurityContextHelper.SecurityContext;
 import com.unla.agroecologiaiot.models.GardenModel;
+import com.unla.agroecologiaiot.models.MetricReadingModel;
 import com.unla.agroecologiaiot.services.IGardenService;
 
 @RestController
@@ -29,6 +30,11 @@ public class GardenController {
     @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
     public ResponseEntity<String> post(@RequestBody GardenModel model) {
         return gardenService.saveOrUpdate(model, SecurityContext.getUserIdContext().get());
+    }
+
+    @PostMapping("metrics-readings")
+    public ResponseEntity<String> postMetricsReadings(@RequestBody MetricReadingModel model) {
+        return gardenService.saveMetricReading(model);
     }
 
     @PutMapping("{id}")

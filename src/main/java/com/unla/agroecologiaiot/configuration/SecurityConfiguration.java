@@ -53,7 +53,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers(SecurityConstants.REFRESH_TOKEN_URL).antMatchers(SecurityConstants.INTERNO);
+        web.ignoring().antMatchers(SecurityConstants.REFRESH_TOKEN_URL).antMatchers(SecurityConstants.INTERNO)
+        .antMatchers(SecurityConstants.METRICS_READINGS);
     }
 
 

@@ -11,6 +11,7 @@ public class MessageHelper {
     public static final String E01 = "Ups! Algo salió mal";
     public static final String E02 = "Error de búsqueda";
     public static final String E03 = "Error de validación";
+    public static final String E04 = "Operación Exitosa.";
 
     public static class Message {
 
@@ -39,6 +40,10 @@ public class MessageHelper {
 
         public static ResponseEntity<String> Ok(Object obj) {
             return new ResponseEntity<String>(JsonParser.toJson(obj), Http.getContentType_Json(), HttpStatus.OK);
+        }
+
+        public static ResponseEntity<String> Ok() {
+            return new ResponseEntity<String>(JsonParser.toJson(E04), Http.getContentType_Json(), HttpStatus.OK);
         }
     }
 }
