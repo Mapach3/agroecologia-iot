@@ -333,6 +333,18 @@ public class GardenService implements IGardenService {
                     sectorMetricDataModel.setName(sector.getName());
                     sectorMetricDataModel.setSectorId(sector.getSectorId());         
                     metricReadingsDTOModel = MappingHelper.mapList(metricReadingRepository.findBySectorAndOrderByReadingDate(sector.getSectorId()), MetricReadingDTOModel.class);
+                    
+                    var readingDateUltimo = metricReadingsDTOModel.stream().findFirst().get().getReadingDate();
+                    
+                    //TODO: VER DE REFACTORIZAR LOS FOREACHS                     
+                    for (MetricType metricType : metricTypeRepository.findAll()) {
+                        for (MetricReadingDTOModel metricReadingDTOModel : metricReadingsDTOModel) {
+                            if(metricReadingDTOModel.getMetricTypeCode().equals(metricType.getCode()) && metricReadingDTOModel.getReadingDate().equals(readingDateUltimo)){
+                                metricReadingDTOModel.setCurrentReading(true);
+                            }
+                        }
+
+                    }
 
                     sectorMetricDataModel.setReadings(metricReadingsDTOModel);
                     sectorMetricDataModels.add(sectorMetricDataModel);
