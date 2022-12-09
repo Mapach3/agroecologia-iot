@@ -58,4 +58,9 @@ public class GardenController {
         return gardenService.getList(pageParameters, isAdmin, SecurityContext.getUserIdContext().get());
     }
 
+    @GetMapping("{id}/basic-info")
+    @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
+    public ResponseEntity<String> getBasicInfo(@PathVariable long id) {
+        return gardenService.getBasicInfo(id);
+    }
 }

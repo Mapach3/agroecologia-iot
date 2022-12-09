@@ -11,5 +11,6 @@ public interface IGardenService {
     public ResponseEntity<String> put(GardenModel model, long id);
     public ResponseEntity<String> delete(long id);
     public ResponseEntity<String> getById(long id);
+    public ResponseEntity<String> getBasicInfo(long id);
     public ResponseEntity<String> getList(PagerParametersModel pageParameters, boolean isAdmin, long idUser);
 }

@@ -18,7 +18,10 @@ import com.unla.agroecologiaiot.entities.Garden;
 import com.unla.agroecologiaiot.entities.Sector;
 import com.unla.agroecologiaiot.helpers.FilterHelper.Filter;
 import com.unla.agroecologiaiot.helpers.MessageHelper.Message;
+import com.unla.agroecologiaiot.models.GardenBasicInfoModel;
 import com.unla.agroecologiaiot.models.GardenModel;
+import com.unla.agroecologiaiot.models.SectorBasicDataModel;
+import com.unla.agroecologiaiot.models.SectorMetricRangeModel;
 import com.unla.agroecologiaiot.models.SectorModel;
 import com.unla.agroecologiaiot.repositories.ApplicationUserRepository;
 import com.unla.agroecologiaiot.repositories.GardenRepository;
@@ -260,4 +263,40 @@ public class GardenService implements IGardenService {
         }
     }
 
+    @Override
+    public ResponseEntity<String> getBasicInfo(long id) {
+        try {
+            Optional<Garden> garden = gardenRepository.findByGardenIdAndIsDeleted(id, false);
+
+            if (garden.isPresent()) {
+                GardenBasicInfoModel gardenBasicInfoModel = modelMapper.map(garden, GardenBasicInfoModel.class);
+
+                List<Sector> sectorsList = new ArrayList<>(garden.get().getSectors()).stream()
+                        .filter(sector -> !sector.isDeleted()).collect(Collectors.toList());
+
+                gardenBasicInfoModel.setSectorRangesBasicData(MappingHelper.mapList(sectorsList, SectorBasicDataModel.class));
+
+               
+                for (SectorBasicDataModel sectorBasicDataModel : gardenBasicInfoModel.getSectorRangesBasicData()) {
+
+                    var metricAcceptationRanges = sectorsList.stream()
+                            .filter(sector -> sector.getSectorId() == sectorBasicDataModel.getSectorId()).findAny().get()
+                            .getMetricAcceptationRanges().stream().collect(Collectors.toList());
+
+                    List<SectorMetricRangeModel> sectorMetricRangeModel = MappingHelper.mapList(metricAcceptationRanges, SectorMetricRangeModel.class);
+
+                    sectorBasicDataModel.setSectorMetricRanges(sectorMetricRangeModel);
+                }
+
+                return Message.Ok(gardenBasicInfoModel);
+            }
+
+            return Message.ErrorSearchEntity();
+
+        } catch (
+
+        Exception e) {
+            return Message.ErrorException(e);
+        }
+    }
 }

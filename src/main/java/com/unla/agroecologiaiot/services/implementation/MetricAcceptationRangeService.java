@@ -62,7 +62,7 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRangeSer
     @Override
     public ResponseEntity<String> saveOrUpdate(MetricAcceptationRangeModel model, long idOwner) {
         try {
-            if (!(model.getStartValue() > 0 && model.getEndValue() < 100)) {
+            if (!(model.getStartValue() >= 0 && model.getEndValue() <= 100)) {
                 return Message.ErrorValidation();
             }
 
@@ -154,23 +154,23 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRangeSer
     @Override
     public ResponseEntity<String> delete(long id) {
         try {
-            MetricAcceptationRange metricAcceptationRange = metricAcceptationRangeRepository
-                    .findByIdAndFetchSectorsEagerly(id);
+            Optional<MetricAcceptationRange> metricAcceptationRange = metricAcceptationRangeRepository
+                    .findByMetricAcceptationRangeIdAndIsDeleted(id, false);
 
-            if (metricAcceptationRange == null) {
+            if (!metricAcceptationRange.isPresent()) {
                 return Message.ErrorSearchEntity();
             }
 
-            metricAcceptationRange.setDeleted(true);
+            metricAcceptationRange.get().setDeleted(true);
 
-            for (Sector sector : metricAcceptationRange.getSectors()) { 
+            for (Sector sector : metricAcceptationRange.get().getSectors()) { 
                 sector.setMetricAcceptationRanges(
                         sector.getMetricAcceptationRanges().stream().filter(sectorMetric -> sectorMetric
-                                .getMetricAcceptationRangeId() != metricAcceptationRange.getMetricAcceptationRangeId())
+                                .getMetricAcceptationRangeId() != metricAcceptationRange.get().getMetricAcceptationRangeId())
                                 .collect(Collectors.toSet()));
             }
 
-            metricAcceptationRangeRepository.save(metricAcceptationRange);
+            metricAcceptationRangeRepository.save(metricAcceptationRange.get());
 
             return Message.Ok(true);
 
