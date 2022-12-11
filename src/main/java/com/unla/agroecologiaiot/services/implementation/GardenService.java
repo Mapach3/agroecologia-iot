@@ -342,31 +342,22 @@ public class GardenService implements IGardenService {
                         SectorMetricDataModel sectorMetricDataModel = new SectorMetricDataModel();
                         List<MetricReadingDTOModel> metricReadingsDTOModel = new ArrayList<MetricReadingDTOModel>();
 
-                        sectorMetricDataModel.setName(sector.getName());
                         sectorMetricDataModel.setSectorId(sector.getSectorId());
+                        sectorMetricDataModel.setName(sector.getName());
+
                         metricReadingsDTOModel = MappingHelper.mapList(
                                 metricReadingRepository.findBySectorAndOrderByReadingDate(sector.getSectorId()),
                                 MetricReadingDTOModel.class);
 
                         if (!metricReadingsDTOModel.isEmpty()) {
 
-                            var readingDateUltimo = metricReadingsDTOModel.stream().findFirst().get().getReadingDate();
-
-                            // TODO: VER DE REFACTORIZAR LOS FOREACHS
-                            for (MetricType metricType : metricTypeRepository.findAll()) {
-                                for (MetricReadingDTOModel metricReadingDTOModel : metricReadingsDTOModel) {
-                                    if (metricReadingDTOModel.getMetricTypeCode().equals(metricType.getCode())
-                                            && metricReadingDTOModel.getReadingDate().equals(readingDateUltimo)) {
-                                        metricReadingDTOModel.setCurrentReading(true);
-                                    }
-                                }
-
+                            for (int i = 0; i < sector.getMetricAcceptationRanges().size(); i++) {
+                                metricReadingsDTOModel.get(i).setCurrentReading(true);
                             }
 
                             sectorMetricDataModel.setReadings(metricReadingsDTOModel);
                             sectorMetricDataModels.add(sectorMetricDataModel);
                         }
-
                     }
 
                     return Message.Ok(sectorMetricDataModels);
