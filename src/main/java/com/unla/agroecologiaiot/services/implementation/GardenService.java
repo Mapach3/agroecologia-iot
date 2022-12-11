@@ -2,6 +2,7 @@ package com.unla.agroecologiaiot.services.implementation;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.unla.agroecologiaiot.constants.Constants;
 import com.unla.agroecologiaiot.entities.ApplicationUser;
 import com.unla.agroecologiaiot.entities.Garden;
 import com.unla.agroecologiaiot.entities.MetricReading;
@@ -281,76 +283,95 @@ public class GardenService implements IGardenService {
     }
 
     @Override
-    public ResponseEntity<String> getBasicInfo(long id) {
+    public ResponseEntity<String> getBasicInfo(long id, boolean isAdmin, long idUser) {
         try {
+
             Optional<Garden> garden = gardenRepository.findByGardenIdAndIsDeleted(id, false);
 
             if (garden.isPresent()) {
-                GardenBasicInfoModel gardenBasicInfoModel = modelMapper.map(garden, GardenBasicInfoModel.class);
 
-                List<Sector> sectorsList = new ArrayList<>(garden.get().getSectors()).stream()
-                        .filter(sector -> !sector.isDeleted()).collect(Collectors.toList());
+                if (gardenAccessIsValid(garden.get(), isAdmin, idUser)) {
 
-                gardenBasicInfoModel.setSectorRangesBasicData(MappingHelper.mapList(sectorsList, SectorBasicDataModel.class));
+                    GardenBasicInfoModel gardenBasicInfoModel = modelMapper.map(garden, GardenBasicInfoModel.class);
 
-               
-                for (SectorBasicDataModel sectorBasicDataModel : gardenBasicInfoModel.getSectorRangesBasicData()) {
+                    List<Sector> sectorsList = new ArrayList<>(garden.get().getSectors()).stream()
+                            .filter(sector -> !sector.isDeleted()).collect(Collectors.toList());
 
-                    var metricAcceptationRanges = sectorsList.stream()
-                            .filter(sector -> sector.getSectorId() == sectorBasicDataModel.getSectorId()).findAny().get()
-                            .getMetricAcceptationRanges().stream().collect(Collectors.toList());
+                    gardenBasicInfoModel
+                            .setSectorRangesBasicData(MappingHelper.mapList(sectorsList, SectorBasicDataModel.class));
 
-                    List<SectorMetricRangeModel> sectorMetricRangeModel = MappingHelper.mapList(metricAcceptationRanges, SectorMetricRangeModel.class);
+                    for (SectorBasicDataModel sectorBasicDataModel : gardenBasicInfoModel.getSectorRangesBasicData()) {
 
-                    sectorBasicDataModel.setSectorMetricRanges(sectorMetricRangeModel);
+                        var metricAcceptationRanges = sectorsList.stream()
+                                .filter(sector -> sector.getSectorId() == sectorBasicDataModel.getSectorId()).findAny()
+                                .get()
+                                .getMetricAcceptationRanges().stream()
+                                .collect(Collectors.toList());
+
+                        List<SectorMetricRangeModel> sectorMetricRangeModel = MappingHelper.mapList(
+                                metricAcceptationRanges,
+                                SectorMetricRangeModel.class);
+
+                        sectorMetricRangeModel
+                                .sort(Comparator.comparing(SectorMetricRangeModel::getMetricTypeDescription));
+
+                        sectorBasicDataModel.setSectorMetricRanges(sectorMetricRangeModel);
+                    }
+                    return Message.Ok(gardenBasicInfoModel);
                 }
-
-                return Message.Ok(gardenBasicInfoModel);
             }
-
             return Message.ErrorSearchEntity();
 
-        } catch (
-
-        Exception e) {
+        } catch (Exception e) {
             return Message.ErrorException(e);
         }
     }
 
     @Override
-    public ResponseEntity<String> getSectorsMetricData(long id) {
+    public ResponseEntity<String> getSectorsMetricData(long id, boolean isAdmin, long idUser) {
         try {
             Optional<Garden> garden = gardenRepository.findByGardenIdAndIsDeleted(id, false);
 
             if (garden.isPresent()) {
 
-                List<SectorMetricDataModel> sectorMetricDataModels = new ArrayList<SectorMetricDataModel>();
-         
-                for (Sector sector : garden.get().getSectors()) {  
-                    SectorMetricDataModel sectorMetricDataModel = new SectorMetricDataModel();    
-                    List<MetricReadingDTOModel> metricReadingsDTOModel = new ArrayList<MetricReadingDTOModel>();
+                if (gardenAccessIsValid(garden.get(), isAdmin, idUser)) {
 
-                    sectorMetricDataModel.setName(sector.getName());
-                    sectorMetricDataModel.setSectorId(sector.getSectorId());         
-                    metricReadingsDTOModel = MappingHelper.mapList(metricReadingRepository.findBySectorAndOrderByReadingDate(sector.getSectorId()), MetricReadingDTOModel.class);
-                    
-                    var readingDateUltimo = metricReadingsDTOModel.stream().findFirst().get().getReadingDate();
-                    
-                    //TODO: VER DE REFACTORIZAR LOS FOREACHS                     
-                    for (MetricType metricType : metricTypeRepository.findAll()) {
-                        for (MetricReadingDTOModel metricReadingDTOModel : metricReadingsDTOModel) {
-                            if(metricReadingDTOModel.getMetricTypeCode().equals(metricType.getCode()) && metricReadingDTOModel.getReadingDate().equals(readingDateUltimo)){
-                                metricReadingDTOModel.setCurrentReading(true);
+                    List<SectorMetricDataModel> sectorMetricDataModels = new ArrayList<SectorMetricDataModel>();
+
+                    for (Sector sector : garden.get().getSectors()) {
+                        SectorMetricDataModel sectorMetricDataModel = new SectorMetricDataModel();
+                        List<MetricReadingDTOModel> metricReadingsDTOModel = new ArrayList<MetricReadingDTOModel>();
+
+                        sectorMetricDataModel.setName(sector.getName());
+                        sectorMetricDataModel.setSectorId(sector.getSectorId());
+                        metricReadingsDTOModel = MappingHelper.mapList(
+                                metricReadingRepository.findBySectorAndOrderByReadingDate(sector.getSectorId()),
+                                MetricReadingDTOModel.class);
+
+                        if (!metricReadingsDTOModel.isEmpty()) {
+
+                            var readingDateUltimo = metricReadingsDTOModel.stream().findFirst().get().getReadingDate();
+
+                            // TODO: VER DE REFACTORIZAR LOS FOREACHS
+                            for (MetricType metricType : metricTypeRepository.findAll()) {
+                                for (MetricReadingDTOModel metricReadingDTOModel : metricReadingsDTOModel) {
+                                    if (metricReadingDTOModel.getMetricTypeCode().equals(metricType.getCode())
+                                            && metricReadingDTOModel.getReadingDate().equals(readingDateUltimo)) {
+                                        metricReadingDTOModel.setCurrentReading(true);
+                                    }
+                                }
+
                             }
+
+                            sectorMetricDataModel.setReadings(metricReadingsDTOModel);
+                            sectorMetricDataModels.add(sectorMetricDataModel);
                         }
 
                     }
 
-                    sectorMetricDataModel.setReadings(metricReadingsDTOModel);
-                    sectorMetricDataModels.add(sectorMetricDataModel);
-                }
+                    return Message.Ok(sectorMetricDataModels);
 
-                return Message.Ok(sectorMetricDataModels);
+                }
             }
 
             return Message.ErrorSearchEntity();
@@ -368,34 +389,38 @@ public class GardenService implements IGardenService {
             Optional<Sector> dbSector = sectorRepository.findByCentralizerKey(model.getToken());
 
             if (!dbSector.isPresent()) {
-                return Message.ErrorSearchEntity("El sector no existe.");
+                return Message.ErrorSearchEntity("El sector no existe");
             }
-            
+
             List<MetricReading> metricReadings = new ArrayList<MetricReading>();
 
             for (ReadingModel readingModel : model.getReadings()) {
 
                 Optional<MetricType> metricType = metricTypeRepository.findById(readingModel.getType());
 
-                if(metricType.isPresent()){
+                if (metricType.isPresent()) {
                     MetricReading metricReading = new MetricReading();
-                
+
                     metricReading.setMetricType(metricType.get());
                     metricReading.setSector(dbSector.get());
                     metricReading.setReadingDate(LocalDateTime.now());
                     metricReading.setValue(readingModel.getValue());
-                    metricReading.setValueType(readingModel.getType());
+                    metricReading.setValueType(Constants.MetricValueTypes.DOUBLE);
 
                     metricReadings.add(metricReading);
-                }     
+                }
             }
-           
+
             metricReadingRepository.saveAll(metricReadings);
-            
+
             return Message.Ok();
 
         } catch (Exception e) {
             return Message.ErrorException(e);
         }
+    }
+
+    private boolean gardenAccessIsValid(Garden garden, boolean isAdmin, long idUser) {
+        return isAdmin || garden.getOwner().getUserId() == idUser;
     }
 }

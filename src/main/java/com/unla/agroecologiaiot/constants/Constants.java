@@ -8,4 +8,8 @@ public class Constants {
 
     }
 
+    public static class MetricValueTypes {
+        public static final String DOUBLE = "DOUBLE";
+    }
+
 }

@@ -11,7 +11,7 @@ public class MessageHelper {
     public static final String E01 = "Ups! Algo salió mal";
     public static final String E02 = "Error de búsqueda";
     public static final String E03 = "Error de validación";
-    public static final String E04 = "Operación Exitosa.";
+    public static final String E04 = "Operación Exitosa";
 
     public static class Message {
 

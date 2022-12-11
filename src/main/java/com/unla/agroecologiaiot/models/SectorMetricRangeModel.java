@@ -7,8 +7,9 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class SectorMetricRangeModel{
-    
+public class SectorMetricRangeModel {
+
+    private String name;
     private double startValue;
     private double endValue;
     private String metricTypeCode;
