@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.unla.agroecologiaiot.constants.Constants;
 import com.unla.agroecologiaiot.entities.ApplicationUser;
 import com.unla.agroecologiaiot.entities.Garden;
+import com.unla.agroecologiaiot.entities.MetricAcceptationRange;
 import com.unla.agroecologiaiot.entities.MetricReading;
 import com.unla.agroecologiaiot.entities.MetricType;
 import com.unla.agroecologiaiot.entities.Sector;
@@ -351,8 +352,15 @@ public class GardenService implements IGardenService {
 
                         if (!metricReadingsDTOModel.isEmpty()) {
 
-                            for (int i = 0; i < sector.getMetricAcceptationRanges().size(); i++) {
-                                metricReadingsDTOModel.get(i).setCurrentReading(true);
+                            for (MetricAcceptationRange range : sector.getMetricAcceptationRanges()) {
+
+                                var mostRecentMetric = metricReadingsDTOModel.stream().filter(
+                                        reading -> reading.getMetricTypeCode() == range.getMetricType().getCode())
+                                        .findAny();
+
+                                if (mostRecentMetric.isPresent())
+                                    mostRecentMetric.get().setCurrentReading(true);
+
                             }
 
                             sectorMetricDataModel.setReadings(metricReadingsDTOModel);

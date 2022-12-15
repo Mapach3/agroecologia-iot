@@ -140,7 +140,6 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRangeSer
             metricAcceptationRange.setName(model.getName());
             metricAcceptationRange.setStartValue(model.getStartValue());
             metricAcceptationRange.setEndValue(model.getEndValue());
-            metricAcceptationRange.setMetricType(metricTypeRepository.findByCode(model.getMetricTypeCode()));
 
             long response = metricAcceptationRangeRepository.save(metricAcceptationRange).getMetricAcceptationRangeId();
 
@@ -163,10 +162,11 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRangeSer
 
             metricAcceptationRange.get().setDeleted(true);
 
-            for (Sector sector : metricAcceptationRange.get().getSectors()) { 
+            for (Sector sector : metricAcceptationRange.get().getSectors()) {
                 sector.setMetricAcceptationRanges(
                         sector.getMetricAcceptationRanges().stream().filter(sectorMetric -> sectorMetric
-                                .getMetricAcceptationRangeId() != metricAcceptationRange.get().getMetricAcceptationRangeId())
+                                .getMetricAcceptationRangeId() != metricAcceptationRange.get()
+                                        .getMetricAcceptationRangeId())
                                 .collect(Collectors.toSet()));
             }
 
