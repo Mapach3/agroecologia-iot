@@ -180,17 +180,19 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRangeSer
     }
 
     @Override
-    public ResponseEntity<String> getById(long id) {
+    public ResponseEntity<String> getById(long id, boolean isAdmin, long userId) {
         try {
             Optional<MetricAcceptationRange> metricAcceptationRange = metricAcceptationRangeRepository
                     .findByMetricAcceptationRangeIdAndIsDeleted(id, false);
 
             if (metricAcceptationRange.isPresent()) {
-                MetricAcceptationRangeModel metricAcceptationRangeModel = modelMapper.map(metricAcceptationRange,
-                        MetricAcceptationRangeModel.class);
-                return Message.Ok(metricAcceptationRangeModel);
-            }
 
+                if (rangeAccessIsValid(metricAcceptationRange.get(), isAdmin, userId)) {
+                    MetricAcceptationRangeModel metricAcceptationRangeModel = modelMapper.map(metricAcceptationRange,
+                            MetricAcceptationRangeModel.class);
+                    return Message.Ok(metricAcceptationRangeModel);
+                }
+            }
             return Message.ErrorSearchEntity();
 
         } catch (Exception e) {
@@ -243,5 +245,9 @@ public class MetricAcceptationRangeService implements IMetricAcceptationRangeSer
         } catch (Exception e) {
             return Message.ErrorException(e);
         }
+    }
+
+    private boolean rangeAccessIsValid(MetricAcceptationRange acceptationRange, boolean isAdmin, long idUser) {
+        return isAdmin || acceptationRange.getOwner().getUserId() == idUser;
     }
 }

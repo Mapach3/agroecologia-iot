@@ -60,7 +60,10 @@ public class MetricAcceptationRangeController {
     @GetMapping("{id}")
     @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
     public ResponseEntity<String> get(@PathVariable long id) {
-        return metricAcceptationRangeService.getById(id);
+        var userId = SecurityContext.getUserIdContext().get();
+        var isAdmin = SecurityContext.getRoleContext().getCode().equals("ADMIN");
+
+        return metricAcceptationRangeService.getById(id, isAdmin, userId);
     }
 
     @DeleteMapping("{id}")

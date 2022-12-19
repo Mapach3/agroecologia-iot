@@ -16,7 +16,7 @@ public interface IGardenService {
 
     public ResponseEntity<String> delete(long id);
 
-    public ResponseEntity<String> getById(long id);
+    public ResponseEntity<String> getById(long id, boolean isAdmin, long userId);
 
     public ResponseEntity<String> getBasicInfo(long id, boolean isAdmin, long idUser);
 

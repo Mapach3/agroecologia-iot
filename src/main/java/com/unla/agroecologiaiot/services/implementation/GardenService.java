@@ -199,30 +199,33 @@ public class GardenService implements IGardenService {
     }
 
     @Override
-    public ResponseEntity<String> getById(long id) {
+    public ResponseEntity<String> getById(long id, boolean isAdmin, long userId) {
         try {
             Optional<Garden> garden = gardenRepository.findByGardenIdAndIsDeleted(id, false);
 
             if (garden.isPresent()) {
-                GardenModel gardenModel = modelMapper.map(garden, GardenModel.class);
 
-                List<Sector> sectorsList = new ArrayList<>(garden.get().getSectors()).stream()
-                        .filter(sector -> !sector.isDeleted()).collect(Collectors.toList());
-                gardenModel.setSectors(MappingHelper.mapList(sectorsList, SectorModel.class));
+                if (gardenAccessIsValid(garden.get(), isAdmin, userId)) {
 
-                // Set MetricAcceptationRangeIds into Model
-                for (SectorModel sectorModel : gardenModel.getSectors()) {
+                    GardenModel gardenModel = modelMapper.map(garden, GardenModel.class);
 
-                    var metricAcceptationRanges = sectorsList.stream()
-                            .filter(sector -> sector.getSectorId() == sectorModel.getSectorId()).findAny().get()
-                            .getMetricAcceptationRanges();
+                    List<Sector> sectorsList = new ArrayList<>(garden.get().getSectors()).stream()
+                            .filter(sector -> !sector.isDeleted()).collect(Collectors.toList());
+                    gardenModel.setSectors(MappingHelper.mapList(sectorsList, SectorModel.class));
 
-                    sectorModel.setMetricAcceptationRangeIds(metricAcceptationRanges.stream()
-                            .flatMap(x -> Stream.of(x.getMetricAcceptationRangeId()))
-                            .collect(Collectors.toList()));
+                    // Set MetricAcceptationRangeIds into Model
+                    for (SectorModel sectorModel : gardenModel.getSectors()) {
+
+                        var metricAcceptationRanges = sectorsList.stream()
+                                .filter(sector -> sector.getSectorId() == sectorModel.getSectorId()).findAny().get()
+                                .getMetricAcceptationRanges();
+
+                        sectorModel.setMetricAcceptationRangeIds(metricAcceptationRanges.stream()
+                                .flatMap(x -> Stream.of(x.getMetricAcceptationRangeId()))
+                                .collect(Collectors.toList()));
+                    }
+                    return Message.Ok(gardenModel);
                 }
-
-                return Message.Ok(gardenModel);
             }
 
             return Message.ErrorSearchEntity();
