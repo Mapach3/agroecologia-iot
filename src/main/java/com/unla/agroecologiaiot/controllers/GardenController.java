@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.unla.agroecologiaiot.shared.paginated.PagerParametersModel;
 import com.unla.agroecologiaiot.helpers.SecurityContextHelper.SecurityContext;
 import com.unla.agroecologiaiot.models.GardenModel;
+import com.unla.agroecologiaiot.models.MetricReadingModel;
 import com.unla.agroecologiaiot.services.IGardenService;
 
 @RestController
@@ -31,6 +32,11 @@ public class GardenController {
         return gardenService.saveOrUpdate(model, SecurityContext.getUserIdContext().get());
     }
 
+    @PostMapping("metric-readings")
+    public ResponseEntity<String> postMetricsReadings(@RequestBody MetricReadingModel model) {
+        return gardenService.saveMetricReading(model);
+    }
+
     @PutMapping("{id}")
     @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
     public ResponseEntity<String> put(@RequestBody GardenModel model, @PathVariable long id) {
@@ -40,7 +46,9 @@ public class GardenController {
     @GetMapping("{id}")
     @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
     public ResponseEntity<String> get(@PathVariable long id) {
-        return gardenService.getById(id);
+        var userId = SecurityContext.getUserIdContext().get();
+        var isAdmin = SecurityContext.getRoleContext().getCode().equals("ADMIN");
+        return gardenService.getById(id, isAdmin, userId);
     }
 
     @DeleteMapping("{id}")
@@ -52,10 +60,27 @@ public class GardenController {
     @GetMapping("")
     @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
     public ResponseEntity<String> getList(PagerParametersModel pageParameters) {
-        boolean isAdmin = SecurityContext.getRoleContext().getCode().equals("ADMIN")
-                ? true
-                : false;
+        boolean isAdmin = SecurityContext.getRoleContext().getCode().equals("ADMIN");
         return gardenService.getList(pageParameters, isAdmin, SecurityContext.getUserIdContext().get());
     }
 
+    @GetMapping("{id}/basic-info")
+    @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
+    public ResponseEntity<String> getBasicInfo(@PathVariable long id) {
+
+        boolean isAdmin = SecurityContext.getRoleContext().getCode().equals("ADMIN");
+        long userId = SecurityContext.getUserIdContext().get();
+
+        return gardenService.getBasicInfo(id, isAdmin, userId);
+    }
+
+    @GetMapping("{id}/sectors-metric-data")
+    @PreAuthorize("hasAuthority('ADMIN')" + "|| hasAuthority('GARDEN_MANAGER')")
+    public ResponseEntity<String> getSectorsMetricData(@PathVariable long id) {
+
+        boolean isAdmin = SecurityContext.getRoleContext().getCode().equals("ADMIN");
+        long userId = SecurityContext.getUserIdContext().get();
+
+        return gardenService.getSectorsMetricData(id, isAdmin, userId);
+    }
 }

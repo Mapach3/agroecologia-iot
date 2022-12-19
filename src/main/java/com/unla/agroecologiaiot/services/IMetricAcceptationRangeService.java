@@ -12,7 +12,7 @@ public interface IMetricAcceptationRangeService {
 
     public ResponseEntity<String> delete(long id);
 
-    public ResponseEntity<String> getById(long id);
+    public ResponseEntity<String> getById(long id, boolean isAdmin, long userId);
 
     public ResponseEntity<String> getList(PagerParametersModel pageParametersModel, boolean isAdmin, long idUser);
 

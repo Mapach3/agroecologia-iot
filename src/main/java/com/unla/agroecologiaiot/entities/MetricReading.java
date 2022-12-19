@@ -3,7 +3,6 @@ package com.unla.agroecologiaiot.entities;
 import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
@@ -12,8 +11,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +21,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "metricReading")
-@EntityListeners(AuditingEntityListener.class)
 public class MetricReading {
 
     @Id

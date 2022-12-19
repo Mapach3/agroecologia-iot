@@ -43,7 +43,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable().authorizeRequests()             
+        http.cors().and().csrf().disable().authorizeRequests()
                 .antMatchers(SecurityConstants.SWAGGER_URL_WHITELIST).permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -53,9 +53,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers(SecurityConstants.REFRESH_TOKEN_URL).antMatchers(SecurityConstants.INTERNO);
+        web.ignoring().antMatchers(SecurityConstants.REFRESH_TOKEN_URL).antMatchers(SecurityConstants.INTERNO)
+                .antMatchers(SecurityConstants.METRIC_READINGS);
     }
-
 
     public AuthenticationFilter getAuthenticationFilter() throws Exception {
         final AuthenticationFilter authFilter = new AuthenticationFilter(authenticationManager(),
