@@ -207,19 +207,15 @@ public class ApplicationUserService
 
   public ResponseEntity<String> getListByRoleId(long id) {
     try {
-      List<ApplicationUser> dbUser = applicationUserRepository.findAllUsersByRoleId(id);
+      List<ApplicationUser> dbUsers = applicationUserRepository.findAllUsersByRoleId(id);
 
-      if (dbUser.size() > 0) {
-        List<ApplicationUserModel> applicationUserModels = new ArrayList<ApplicationUserModel>();
+      List<ApplicationUserModel> applicationUserModels = new ArrayList<ApplicationUserModel>();
 
-        for (ApplicationUser user : dbUser) {
-          applicationUserModels.add(modelMapper.map(user, ApplicationUserModel.class));
-        }
-
-        return Message.Ok(applicationUserModels);
+      for (ApplicationUser user : dbUsers) {
+        applicationUserModels.add(modelMapper.map(user, ApplicationUserModel.class));
       }
 
-      return Message.ErrorSearchEntity();
+      return Message.Ok(applicationUserModels);
 
     } catch (Exception e) {
       return Message.ErrorException(e);
